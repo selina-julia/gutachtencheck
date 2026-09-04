@@ -1,21 +1,7 @@
 import Link from "next/link";
 import { Mail } from "lucide-react";
 
-const navigation = [
-  { label: "Leistungen", href: "#leistungen" },
-  { label: "Ablauf", href: "#ablauf" },
-  { label: "Über mich", href: "/ueber-mich" },
-  { label: "Rechtsschutz", href: "/rechtsschutz" },
-  { label: "FAQ", href: "#faq" },
-  { label: "Kontakt", href: "/kontakt" },
-];
-
-const rechtliches = [
-  { label: "Impressum", href: "/impressum" },
-  { label: "Datenschutz", href: "/datenschutz" },
-  { label: "AGB", href: "/agb" },
-  { label: "Widerrufsbelehrung", href: "/widerruf" },
-];
+import { hauptnavigation, rechtliches } from "@/lib/navigation";
 
 export function SiteFooter() {
   return (
@@ -33,7 +19,7 @@ export function SiteFooter() {
             aria-label="Fußzeilen-Navigation"
             className="flex flex-wrap gap-x-8 gap-y-3"
           >
-            {navigation.map((item) => (
+            {hauptnavigation.map((item) => (
               <Link
                 key={item.href}
                 href={item.href}

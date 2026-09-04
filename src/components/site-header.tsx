@@ -1,14 +1,7 @@
 import Link from "next/link";
-import { Menu } from "lucide-react";
 
-const navigation = [
-  { label: "Leistungen", href: "#leistungen" },
-  { label: "Ablauf", href: "#ablauf" },
-  { label: "Über mich", href: "/ueber-mich" },
-  { label: "Rechtsschutz", href: "/rechtsschutz" },
-  { label: "FAQ", href: "#faq" },
-  { label: "Kontakt", href: "/kontakt" },
-];
+import { MobileMenu } from "@/components/mobile-menu";
+import { hauptnavigation } from "@/lib/navigation";
 
 export function SiteHeader() {
   return (
@@ -25,7 +18,7 @@ export function SiteHeader() {
           aria-label="Hauptnavigation"
           className="hidden items-center gap-8 lg:flex"
         >
-          {navigation.map((item) => (
+          {hauptnavigation.map((item) => (
             <Link
               key={item.href}
               href={item.href}
@@ -36,13 +29,7 @@ export function SiteHeader() {
           ))}
         </nav>
 
-        <button
-          type="button"
-          aria-label="Menü öffnen"
-          className="-mr-2 flex size-10 shrink-0 items-center justify-center rounded-sm text-foreground/75 transition-colors hover:text-foreground focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring lg:hidden"
-        >
-          <Menu className="size-5" aria-hidden="true" />
-        </button>
+        <MobileMenu />
       </div>
     </header>
   );

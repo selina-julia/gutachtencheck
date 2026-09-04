@@ -68,7 +68,8 @@ export function BestellDialog({
           </ResponsiveDialogDescription>
         </ResponsiveDialogHeader>
 
-        <Card>
+        <div className="-mx-1 min-h-0 flex-1 space-y-4 overflow-y-auto px-1">
+          <Card>
           <CardContent>
             <p className="text-2xl font-semibold tracking-[-0.03em] text-foreground">
               {(produkt.betragInCent / 100).toLocaleString("de-AT", {
@@ -95,87 +96,90 @@ export function BestellDialog({
               ))}
             </ul>
           </CardFooter>
-        </Card>
+          </Card>
 
-        <form action={formAction}>
-          <fieldset className="flex flex-col gap-4">
-            <legend className="sr-only">Zustimmungen</legend>
+          <form id="bestellformular" action={formAction}>
+              <fieldset className="flex flex-col gap-4">
+              <legend className="sr-only">Zustimmungen</legend>
 
-            <div className="flex items-start gap-3">
-              <Checkbox
-                id="agb"
-                name="agb"
-                aria-required="true"
-                className="mt-0.5 border-muted-foreground"
-              />
-              <Label
-                htmlFor="agb"
-                className="text-sm leading-relaxed font-normal text-foreground"
-              >
-                <span>
-                  Ich habe die{" "}
-                  <a
-                    href="/agb"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-foreground underline underline-offset-2"
-                  >
-                    AGB
-                  </a>{" "}
-                  und die{" "}
-                  <a
-                    href="/datenschutz"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-foreground underline underline-offset-2"
-                  >
-                    Datenschutzerklärung
-                  </a>{" "}
-                  gelesen und stimme ihnen zu.
-                  <span aria-hidden="true" className="ml-0.5 text-destructive">
-                    *
+              <div className="flex items-start gap-3">
+                <Checkbox
+                  id="agb"
+                  name="agb"
+                  aria-required="true"
+                  className="mt-0.5 border-muted-foreground"
+                />
+                <Label
+                  htmlFor="agb"
+                  className="text-sm leading-relaxed font-normal text-foreground"
+                >
+                  <span>
+                    Ich habe die{" "}
+                    <a
+                      href="/agb"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-foreground underline underline-offset-2"
+                    >
+                      AGB
+                    </a>{" "}
+                    und die{" "}
+                    <a
+                      href="/datenschutz"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-foreground underline underline-offset-2"
+                    >
+                      Datenschutzerklärung
+                    </a>{" "}
+                    gelesen und stimme ihnen zu.
+                    <span aria-hidden="true" className="ml-0.5 text-destructive">
+                      *
+                    </span>
                   </span>
-                </span>
-              </Label>
-            </div>
+                </Label>
+              </div>
 
-            <div className="flex items-start gap-3">
-              <Checkbox
-                id="fagg"
-                name="fagg"
-                aria-required="true"
-                className="mt-0.5 border-muted-foreground"
-              />
-              <Label
-                htmlFor="fagg"
-                className="text-sm leading-relaxed font-normal text-foreground"
-              >
-                <span>
-                  Ich verlange ausdrücklich, dass mit der Prüfung vor Ablauf der
-                  14-tägigen Rücktrittsfrist begonnen wird, und weiß, dass ich
-                  mein Rücktrittsrecht mit vollständiger Erbringung verliere.
-                  <span aria-hidden="true" className="ml-0.5 text-destructive">
-                    *
+              <div className="flex items-start gap-3">
+                <Checkbox
+                  id="fagg"
+                  name="fagg"
+                  aria-required="true"
+                  className="mt-0.5 border-muted-foreground"
+                />
+                <Label
+                  htmlFor="fagg"
+                  className="text-sm leading-relaxed font-normal text-foreground"
+                >
+                  <span>
+                    Ich verlange ausdrücklich, dass mit der Prüfung vor Ablauf der
+                    14-tägigen Rücktrittsfrist begonnen wird, und weiß, dass ich
+                    mein Rücktrittsrecht mit vollständiger Erbringung verliere.
+                    <span aria-hidden="true" className="ml-0.5 text-destructive">
+                      *
+                    </span>
                   </span>
-                </span>
-              </Label>
-            </div>
-          </fieldset>
+                </Label>
+              </div>
+            </fieldset>
 
-          {zustand?.fehler ? (
-            <p role="alert" className="mt-4 text-sm font-medium text-destructive">
-              {zustand.fehler}
+            {zustand?.fehler ? (
+              <p role="alert" className="mt-4 text-sm font-medium text-destructive">
+                {zustand.fehler}
+              </p>
+            ) : null}
+
+            <p className="mt-5 text-xs leading-relaxed text-foreground">
+              <span aria-hidden="true" className="text-destructive">*</span>{" "}
+              Beides ist gesetzlich erforderlich, bevor die Bearbeitung beginnen
+              darf. Die Zahlung wird über Stripe abgewickelt. Nach dem Zahlungseingang
+              erhalten Sie Rechnung und Upload-Link per E-Mail.
             </p>
-          ) : null}
 
-          <p className="mt-5 text-xs leading-relaxed text-foreground">
-            <span aria-hidden="true" className="text-destructive">*</span>{" "}
-            Beides ist gesetzlich erforderlich, bevor die Bearbeitung beginnen
-            darf. Die Zahlung wird über Stripe abgewickelt. Nach dem Zahlungseingang
-            erhalten Sie Rechnung und Upload-Link per E-Mail.
-          </p>
+          </form>
+        </div>
 
-          <ResponsiveDialogFooter className="mt-6 bg-background">
+        <ResponsiveDialogFooter className="mt-0 bg-background">
             <ResponsiveDialogClose asChild>
               <Button
                 type="button"
@@ -187,13 +191,13 @@ export function BestellDialog({
             </ResponsiveDialogClose>
             <Button
               type="submit"
+              form="bestellformular"
               disabled={laeuft}
               className="h-11 rounded-full px-6 text-sm font-semibold"
             >
               {laeuft ? "Weiterleitung zu Stripe …" : "Weiter zur Zahlung"}
             </Button>
-          </ResponsiveDialogFooter>
-        </form>
+        </ResponsiveDialogFooter>
       </ResponsiveDialogContent>
     </ResponsiveDialog>
   );

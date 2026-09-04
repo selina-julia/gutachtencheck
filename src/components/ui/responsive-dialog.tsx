@@ -66,7 +66,7 @@ function ResponsiveDialogContent({
   if (use(IstDialogKontext)) {
     return (
       <DialogContent
-        className={className}
+        className={cn("flex max-h-[85dvh] flex-col overflow-hidden", className)}
         showCloseButton={showCloseButton}
         {...props}
       />
@@ -77,7 +77,7 @@ function ResponsiveDialogContent({
   return (
     <DrawerContent
       className={cn(
-        "gap-4 overflow-y-auto p-4 pt-0 [&>*]:shrink-0",
+        "gap-4 overflow-hidden p-4 pt-0",
         "data-[vaul-drawer-direction=bottom]:max-h-[85dvh]",
         drawerClassName,
       )}
@@ -91,9 +91,9 @@ function ResponsiveDialogHeader({
   ...props
 }: React.ComponentProps<"div">) {
   return use(IstDialogKontext) ? (
-    <DialogHeader className={className} {...props} />
+    <DialogHeader className={cn("shrink-0", className)} {...props} />
   ) : (
-    <DrawerHeader className={cn("p-0 text-left!", className)} {...props} />
+    <DrawerHeader className={cn("shrink-0 p-0 text-left!", className)} {...props} />
   );
 }
 
@@ -124,11 +124,11 @@ function ResponsiveDialogFooter({
   ...props
 }: React.ComponentProps<typeof DialogFooter>) {
   return use(IstDialogKontext) ? (
-    <DialogFooter className={className} {...props} />
+    <DialogFooter className={cn("shrink-0", className)} {...props} />
   ) : (
     <DrawerFooter
       className={cn(
-        "sticky bottom-0 -mx-4 border-t bg-background px-4 pt-4",
+        "-mx-4 shrink-0 border-t bg-background px-4 pt-4",
         "pb-[max(1rem,env(safe-area-inset-bottom))]",
         className,
       )}
