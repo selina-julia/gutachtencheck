@@ -2,6 +2,7 @@ import { ArrowUpRight, Check, FileText } from "lucide-react";
 
 import { BestellDialog } from "@/components/bestell-dialog";
 import { Button } from "@/components/ui/button";
+import { ablaufSchritte } from "@/lib/ablauf";
 
 /**
  * Die drei Illustrationen sind bewusst reines Markup statt Bilddateien: Sie
@@ -108,26 +109,12 @@ function BildErgebnis() {
   );
 }
 
-const schritte = [
-  {
-    label: "Schritt 1",
-    titel: "Unterlagen hochladen",
-    text: "Für die Erst-Einschätzung genügen das Gutachten der Versicherung als PDF und eine kurze Schilderung des Schadens. Verschlüsselt, DSGVO-konform, auch direkt vom Handy.",
-    Bild: BildUpload,
-  },
-  {
-    label: "Schritt 2",
-    titel: "Prüfung durch den Sachverständigen",
-    text: "Ich sichte das Gutachten persönlich – als allgemein beeideter und gerichtlich zertifizierter Sachverständiger. Geprüft wird, was sich aus den Unterlagen fachlich ableiten lässt.",
-    Bild: BildPruefung,
-  },
-  {
-    label: "Schritt 3",
-    titel: "Ergebnis in drei Werktagen",
-    text: "Sie erhalten eine schriftliche Kurzbewertung mit klarer Ampel-Aussage, drei bis fünf konkret benannte Auffälligkeiten und eine Empfehlung zum weiteren Vorgehen.",
-    Bild: BildErgebnis,
-  },
-];
+const bilder = [BildUpload, BildPruefung, BildErgebnis];
+
+const schritte = ablaufSchritte.map((schritt, index) => ({
+  ...schritt,
+  Bild: bilder[index],
+}));
 
 export function Ablauf() {
   return (

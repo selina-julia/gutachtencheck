@@ -78,6 +78,7 @@ function ResponsiveDialogContent({
     <DrawerContent
       className={cn(
         "gap-4 overflow-y-auto p-4 pt-0 [&>*]:shrink-0",
+        "data-[vaul-drawer-direction=bottom]:max-h-[85dvh]",
         drawerClassName,
       )}
       {...props}
@@ -125,7 +126,14 @@ function ResponsiveDialogFooter({
   return use(IstDialogKontext) ? (
     <DialogFooter className={className} {...props} />
   ) : (
-    <DrawerFooter className={cn("p-0", className)} {...props} />
+    <DrawerFooter
+      className={cn(
+        "sticky bottom-0 -mx-4 border-t bg-background px-4 pt-4",
+        "pb-[max(1rem,env(safe-area-inset-bottom))]",
+        className,
+      )}
+      {...props}
+    />
   );
 }
 

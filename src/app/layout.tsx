@@ -35,20 +35,11 @@ export const metadata: Metadata = {
     siteName,
     title: titel,
     description: siteBeschreibung,
-    images: [
-      {
-        url: "/images/hero.png",
-        width: 1916,
-        height: 821,
-        alt: "Sachverständiger prüft ein Versicherungsgutachten am Laptop.",
-      },
-    ],
   },
   twitter: {
     card: "summary_large_image",
     title: titel,
     description: siteBeschreibung,
-    images: ["/images/hero.png"],
   },
 };
 
