@@ -3,7 +3,8 @@
 import { redirect } from "next/navigation";
 
 import { produkte } from "@/lib/produkte";
-import { getSiteUrl, getStripe } from "@/lib/stripe";
+import { getSiteUrl } from "@/lib/site";
+import { getStripe } from "@/lib/stripe";
 
 export type BestellFehler = { fehler: string } | undefined;
 

@@ -22,9 +22,9 @@ export function Hero() {
           </h1>
 
           <p className="mt-6 max-w-[54ch] text-base leading-relaxed text-muted-foreground sm:mt-8 sm:text-lg">
-            Das Gutachten, das über Ihre Entschädigung entscheidet, stammt vom
-            Sachverständigen der Versicherung. Ich prüfe es – unabhängig,
-            ausschließlich online und österreichweit.
+            Positionen, Zeitwerte, Abzüge – und keine Möglichkeit zu
+            beurteilen, ob das stimmt. Ich prüfe Ihr Versicherungsgutachten
+            unabhängig und sage Ihnen in drei Werktagen, woran Sie sind.
           </p>
 
           <BestellDialog>

@@ -138,10 +138,10 @@ export function Ablauf() {
         <div className="rounded-3xl bg-brand-tint/50 px-6 py-14 sm:px-10 sm:py-16">
           <div className="grid gap-y-8 lg:grid-cols-2 lg:items-start lg:gap-x-20">
             <h2 className="text-[clamp(1.75rem,3.4vw,3rem)] font-semibold leading-[1.1] tracking-[-0.03em] text-foreground">
-              In drei Schritten
+              Gutachten prüfen lassen
               <br />
               <span className="font-serif font-semibold italic text-brand-navy">
-                zur Einschätzung
+                in drei Schritten
               </span>
             </h2>
 

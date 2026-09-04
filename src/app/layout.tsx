@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Manrope, Playfair_Display } from "next/font/google";
+import { getSiteUrl, siteBeschreibung, siteName } from "@/lib/site";
 import "./globals.css";
 
 const manrope = Manrope({
@@ -15,10 +16,40 @@ const playfairDisplay = Playfair_Display({
   style: ["italic"],
 });
 
+const titel = "Versicherungsgutachten prüfen lassen | Gutachtencheck";
+
 export const metadata: Metadata = {
-  title: "Gutachtencheck — Versicherungsgutachten unabhängig prüfen lassen",
-  description:
-    "Nach Brand-, Wasser-, Sturm- oder Haftpflichtschaden: Ihr Versicherungsgutachten wird von einem allgemein beeideten und gerichtlich zertifizierten Sachverständigen geprüft. Ausschließlich online, österreichweit.",
+  /* metadataBase macht die relativen Pfade unten auflösbar – ohne sie bliebe
+     das OG-Bild eine relative URL, mit der kein Netzwerk etwas anfangen kann. */
+  metadataBase: new URL(getSiteUrl()),
+  title: {
+    default: titel,
+    template: `%s | ${siteName}`,
+  },
+  description: siteBeschreibung,
+  alternates: { canonical: "/" },
+  openGraph: {
+    type: "website",
+    locale: "de_AT",
+    url: "/",
+    siteName,
+    title: titel,
+    description: siteBeschreibung,
+    images: [
+      {
+        url: "/images/hero.png",
+        width: 1916,
+        height: 821,
+        alt: "Sachverständiger prüft ein Versicherungsgutachten am Laptop.",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: titel,
+    description: siteBeschreibung,
+    images: ["/images/hero.png"],
+  },
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
