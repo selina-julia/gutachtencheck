@@ -1,6 +1,6 @@
-import Link from "next/link";
 import { ArrowUpRight } from "lucide-react";
 
+import { BestellDialog } from "@/components/bestell-dialog";
 import { DuotoneImage } from "@/components/duotone-image";
 import { Button } from "@/components/ui/button";
 
@@ -27,17 +27,14 @@ export function Hero() {
             ausschließlich online und österreichweit.
           </p>
 
-          <Button
-            asChild
-            className="mt-8 h-12 w-full rounded-full py-0 pl-6 pr-2 text-sm font-semibold sm:w-auto"
-          >
-            <Link href="/pruefung">
+          <BestellDialog>
+            <Button className="mt-8 h-12 w-full rounded-full py-0 pl-6 pr-2 text-sm font-semibold sm:w-auto">
               Erst-Einschätzung kaufen
               <span className="ml-3 flex size-8 items-center justify-center rounded-full bg-primary-foreground">
                 <ArrowUpRight className="size-4 text-primary" aria-hidden="true" />
               </span>
-            </Link>
-          </Button>
+            </Button>
+          </BestellDialog>
         </div>
 
         <div className="relative lg:col-start-1 lg:row-start-1 lg:pt-3">

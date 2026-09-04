@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { Check } from "lucide-react";
 
+import { BestellDialog } from "@/components/bestell-dialog";
 import { Button } from "@/components/ui/button";
 
 const pakete = [
@@ -10,7 +11,8 @@ const pakete = [
     preis: "149 €",
     zusatz: ["inkl. USt", "Lieferung in 3 Werktagen"],
     cta: "Erst-Einschätzung kaufen",
-    href: "/pruefung/erst-einschaetzung",
+    href: null,
+    direktkauf: true,
     hervorgehoben: false,
     badge: null,
     badgeTon: null,
@@ -29,6 +31,7 @@ const pakete = [
     zusatz: ["inkl. USt", "Lieferung in 5–7 Werktagen"],
     cta: "Festpreis anfragen",
     href: "/anfrage/stellungnahme",
+    direktkauf: false,
     hervorgehoben: true,
     badge: "Am häufigsten beauftragt",
     badgeTon: "primary" as const,
@@ -49,6 +52,7 @@ const pakete = [
     zusatz: ["inkl. USt", "Lieferzeit nach Vereinbarung"],
     cta: "Festpreis anfragen",
     href: "/anfrage/vertiefte-pruefung",
+    direktkauf: false,
     hervorgehoben: false,
     badge: null,
     badgeTon: null,
@@ -72,6 +76,7 @@ const pakete = [
     ],
     cta: "Deckungsprüfung anfragen",
     href: "/anfrage/deckungspruefung",
+    direktkauf: false,
     hervorgehoben: false,
     badge: "Zusatzmodul",
     badgeTon: "neutral" as const,
@@ -85,6 +90,12 @@ const pakete = [
     ],
   },
 ];
+
+function buttonKlassen(hervorgehoben: boolean): string {
+  return hervorgehoben
+    ? "mt-6 h-11 w-full rounded-full text-sm font-semibold"
+    : "mt-6 h-11 w-full rounded-full bg-foreground text-sm font-semibold text-background hover:bg-foreground/90";
+}
 
 export function Pricing() {
   return (
@@ -157,16 +168,17 @@ export function Pricing() {
                 </p>
               </div>
 
-              <Button
-                asChild
-                className={
-                  paket.hervorgehoben
-                    ? "mt-6 h-11 w-full rounded-full text-sm font-semibold"
-                    : "mt-6 h-11 w-full rounded-full bg-foreground text-sm font-semibold text-background hover:bg-foreground/90"
-                }
-              >
-                <Link href={paket.href}>{paket.cta}</Link>
-              </Button>
+              {paket.direktkauf ? (
+                <BestellDialog>
+                  <Button className={buttonKlassen(paket.hervorgehoben)}>
+                    {paket.cta}
+                  </Button>
+                </BestellDialog>
+              ) : (
+                <Button asChild className={buttonKlassen(paket.hervorgehoben)}>
+                  <Link href={paket.href ?? "#"}>{paket.cta}</Link>
+                </Button>
+              )}
 
               <ul className="mt-6 flex flex-col gap-3 border-t border-border pt-6">
                 {paket.leistungen.map((leistung) => (

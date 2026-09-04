@@ -1,6 +1,6 @@
-import Link from "next/link";
 import { ArrowUpRight } from "lucide-react";
 
+import { BestellDialog } from "@/components/bestell-dialog";
 import { Button } from "@/components/ui/button";
 
 export function CtaBanner() {
@@ -24,11 +24,8 @@ export function CtaBanner() {
               in drei Werktagen, mit klarer Ampel-Aussage. Passt Ihr Fall nicht
               zu meinem Angebot, sage ich Ihnen das offen und kostenfrei.
             </p>
-            <Button
-              asChild
-              className="mt-9 h-12 w-full rounded-full bg-background py-0 pl-6 pr-2 text-sm font-semibold text-primary hover:bg-background/90 sm:w-auto"
-            >
-              <Link href="/pruefung/erst-einschaetzung">
+            <BestellDialog>
+              <Button className="mt-9 h-12 w-full rounded-full bg-background py-0 pl-6 pr-2 text-sm font-semibold text-primary hover:bg-background/90 sm:w-auto">
                 Erst-Einschätzung kaufen
                 <span className="ml-3 flex size-8 items-center justify-center rounded-full bg-primary">
                   <ArrowUpRight
@@ -36,8 +33,8 @@ export function CtaBanner() {
                     aria-hidden="true"
                   />
                 </span>
-              </Link>
-            </Button>
+              </Button>
+            </BestellDialog>
           </div>
         </div>
       </div>
