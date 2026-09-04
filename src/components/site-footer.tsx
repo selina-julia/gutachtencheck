@@ -3,7 +3,7 @@ import { Mail } from "lucide-react";
 
 const navigation = [
   { label: "Leistungen", href: "#leistungen" },
-  { label: "Ablauf", href: "/ablauf" },
+  { label: "Ablauf", href: "#ablauf" },
   { label: "Über mich", href: "/ueber-mich" },
   { label: "Rechtsschutz", href: "/rechtsschutz" },
   { label: "FAQ", href: "#faq" },

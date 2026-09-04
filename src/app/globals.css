@@ -9,6 +9,7 @@
   --color-brand-tint: var(--brand-tint);
   --color-brand-deep: var(--brand-deep);
   --color-brand-light: var(--brand-light);
+  --color-brand-navy: var(--brand-navy);
   --color-foreground: var(--foreground);
   --font-sans: var(--font-manrope), ui-sans-serif, system-ui, -apple-system,
     BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
@@ -58,6 +59,7 @@
   --brand-tint: oklch(0.972 0.016 264.665);
   --brand-deep: oklch(0.2 0.095 264.665);
   --brand-light: oklch(0.78 0.09 264.665);
+  --brand-navy: oklch(0.19 0.09 264.665);
   --foreground: oklch(0.145 0 0);
   --card: oklch(1 0 0);
   --card-foreground: oklch(0.145 0 0);
@@ -96,6 +98,7 @@
   --brand-tint: oklch(0.205 0.028 264.665);
   --brand-deep: oklch(0.2 0.095 264.665);
   --brand-light: oklch(0.78 0.09 264.665);
+  --brand-navy: oklch(0.19 0.09 264.665);
   --foreground: oklch(0.985 0 0);
   --card: oklch(0.205 0 0);
   --card-foreground: oklch(0.985 0 0);

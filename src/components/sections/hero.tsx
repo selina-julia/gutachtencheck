@@ -17,7 +17,7 @@ export function Hero() {
           <h1 className="max-w-[20ch] text-[clamp(1.625rem,4.4vw,3.5rem)] font-semibold leading-[1.1] tracking-[-0.03em] hyphens-auto text-foreground">
             Ihr Versicherungsgutachten, unabhängig{" "}
             <span className="ml-[0.04em] font-serif font-semibold italic">
-              geprüft
+              geprüft.
             </span>
           </h1>
 
@@ -31,7 +31,10 @@ export function Hero() {
             <Button className="mt-8 h-12 w-full rounded-full py-0 pl-6 pr-2 text-sm font-semibold sm:w-auto">
               Erst-Einschätzung kaufen
               <span className="ml-3 flex size-8 items-center justify-center rounded-full bg-primary-foreground">
-                <ArrowUpRight className="size-4 text-primary" aria-hidden="true" />
+                <ArrowUpRight
+                  className="size-4 text-primary"
+                  aria-hidden="true"
+                />
               </span>
             </Button>
           </BestellDialog>
@@ -39,9 +42,8 @@ export function Hero() {
 
         <div className="relative lg:col-start-1 lg:row-start-1 lg:pt-3">
           <p className="relative max-w-[15rem] text-sm leading-relaxed text-muted-foreground">
-            Allgemein beeideter und gerichtlich zertifizierter
-            Sachverständiger{"\u00A0"}· seit 2009{"\u00A0"}· über 6.000
-            Versicherungsgutachten
+            Allgemein beeideter und gerichtlich zertifizierter Sachverständiger
+            {"\u00A0"}· seit 2009{"\u00A0"}· über 6.000 Versicherungsgutachten
           </p>
         </div>
       </div>

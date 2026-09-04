@@ -52,7 +52,7 @@ export function Services() {
           <h2 className="text-[clamp(1.75rem,3.4vw,3rem)] font-semibold leading-[1.1] tracking-[-0.03em] text-foreground">
             Sie müssen nicht wissen,
             <br />
-            <span className="font-serif font-semibold italic text-muted-foreground">
+            <span className="font-serif font-semibold italic text-brand-navy">
               was fachlich falsch ist
             </span>
           </h2>
@@ -85,7 +85,7 @@ export function Services() {
                   key={leistung.label}
                   className={
                     leistung.hervorgehoben
-                      ? "flex flex-col rounded-2xl bg-primary p-6 text-primary-foreground"
+                      ? "flex flex-col rounded-2xl bg-brand-navy p-6 text-primary-foreground"
                       : "flex flex-col rounded-2xl border border-border bg-background p-6"
                   }
                 >

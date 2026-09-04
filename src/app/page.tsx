@@ -1,3 +1,4 @@
+import { Ablauf } from "@/components/sections/ablauf";
 import { CtaBanner } from "@/components/sections/cta-banner";
 import { Faq } from "@/components/sections/faq";
 import { Hero } from "@/components/sections/hero";
@@ -13,6 +14,7 @@ export default function Home() {
       <main className="flex-1">
         <Hero />
         <Services />
+        <Ablauf />
         <Pricing />
         <Faq />
         <CtaBanner />

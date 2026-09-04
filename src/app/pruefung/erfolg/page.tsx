@@ -45,7 +45,7 @@ export default async function ErfolgSeite({
                   />
                   <h1 className="mt-6 text-[clamp(1.75rem,4vw,3rem)] font-semibold leading-[1.1] tracking-[-0.03em] text-foreground">
                     Zahlung eingegangen,{" "}
-                    <span className="ml-[0.04em] font-serif font-semibold italic text-muted-foreground">
+                    <span className="ml-[0.04em] font-serif font-semibold italic text-brand-navy">
                       vielen Dank
                     </span>
                   </h1>
@@ -69,7 +69,7 @@ export default async function ErfolgSeite({
                 <>
                   <h1 className="text-[clamp(1.75rem,4vw,3rem)] font-semibold leading-[1.1] tracking-[-0.03em] text-foreground">
                     Zahlung wird noch{" "}
-                    <span className="ml-[0.04em] font-serif font-semibold italic text-muted-foreground">
+                    <span className="ml-[0.04em] font-serif font-semibold italic text-brand-navy">
                       bestätigt
                     </span>
                   </h1>

@@ -30,11 +30,11 @@ export function DuotoneImage({
       />
       <div
         aria-hidden="true"
-        className="pointer-events-none absolute inset-0 bg-primary/10 mix-blend-color"
+        className="pointer-events-none absolute inset-0 bg-primary/20 mix-blend-color"
       />
       <div
         aria-hidden="true"
-        className="pointer-events-none absolute inset-0 bg-brand-deep/25 mix-blend-multiply"
+        className="pointer-events-none absolute inset-0 bg-brand-deep/30 mix-blend-multiply"
       />
     </div>
   );
