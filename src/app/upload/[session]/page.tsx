@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { CircleCheck, TriangleAlert } from "lucide-react";
+import { TriangleAlert } from "lucide-react";
 
 import { UploadFormular } from "@/components/upload-formular";
 import {
@@ -72,28 +72,7 @@ export default async function UploadSeite({
                   </p>
                 </div>
 
-                {/* Steht vor dem Upload, damit klar ist, was gebraucht wird,
-                    bevor jemand Dateien auswählt. */}
-                <div className="mt-10 rounded-2xl border border-border p-6">
-                  <h2 className="text-base font-semibold text-foreground">
-                    Was ich brauche
-                  </h2>
-                  <ul className="mt-4 grid gap-3 sm:grid-cols-2">
-                    {[
-                      "Das Gutachten der Versicherung als PDF",
-                      "Eine kurze Schilderung des Schadens in wenigen Sätzen",
-                    ].map((punkt) => (
-                      <li key={punkt} className="flex gap-2.5">
-                        <CircleCheck className="mt-0.5 size-4 shrink-0 text-primary" aria-hidden="true" />
-                        <span className="text-sm leading-relaxed text-muted-foreground">
-                          {punkt}
-                        </span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-
-                <div className="mt-8">
+                <div className="mt-10">
                   <UploadFormular
                     sessionId={vorgang.sessionId}
                     hatBereitsDateien={dateien.length > 0}

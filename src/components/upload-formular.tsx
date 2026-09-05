@@ -223,10 +223,14 @@ export function UploadFormular({
         className="flex w-full flex-col items-center gap-3 rounded-2xl border border-dashed border-border bg-brand-tint/40 px-6 py-12 text-center transition-colors hover:border-primary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
       >
         <Upload className="size-6 text-primary" aria-hidden="true" />
-        <span className="text-sm font-semibold text-foreground">
+        <span className="text-base font-semibold text-foreground">
           Dateien auswählen
         </span>
-        <span className="max-w-[42ch] text-xs leading-relaxed text-muted-foreground">
+        <span className="max-w-[44ch] text-sm leading-relaxed text-muted-foreground">
+          Das Gutachten der Versicherung als PDF und eine kurze Schilderung des
+          Schadens in wenigen Sätzen.
+        </span>
+        <span className="max-w-[44ch] text-xs leading-relaxed text-muted-foreground/80">
           PDF, JPG, PNG, HEIC und Office-Dateien, bis {megabyte(MAX_BYTE)} pro
           Datei. Mehrere Dateien auf einmal sind möglich.
         </span>
