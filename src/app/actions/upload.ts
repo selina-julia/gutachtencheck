@@ -8,7 +8,7 @@ import {
   unterlagenFuerBetreiber,
 } from "@/lib/mails/unterlagen";
 import {
-  GUTACHTEN_BUCKET,
+  DOKUMENTE_BUCKET,
   getSupabaseAdmin,
   ordnerFuer,
   saubererDateiname,
@@ -77,7 +77,7 @@ export async function meldeUnterlagenEingegangen(
     const mitLinks = await Promise.all(
       dateien.map(async (datei) => {
         const { data } = await supabase.storage
-          .from(GUTACHTEN_BUCKET)
+          .from(DOKUMENTE_BUCKET)
           .createSignedUrl(`${ordnerFuer(sessionId)}/${datei.name}`, 60 * 60 * 24 * 7);
         return { ...datei, url: data?.signedUrl ?? null };
       }),

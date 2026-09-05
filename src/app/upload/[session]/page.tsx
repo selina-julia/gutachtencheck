@@ -2,8 +2,6 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { CircleCheck, TriangleAlert } from "lucide-react";
 
-import { SiteFooter } from "@/components/site-footer";
-import { SiteHeader } from "@/components/site-header";
 import { UploadFormular } from "@/components/upload-formular";
 import {
   ladeBezahltenVorgang,
@@ -33,14 +31,11 @@ export default async function UploadSeite({
   const dateien = vorgang ? await ladeDateien(session) : [];
 
   return (
-    <>
-      <SiteHeader />
-      <main className="flex-1">
-        <section className="bg-background">
+    <section className="bg-background">
           <div className="mx-auto max-w-[1520px] px-5 py-12 sm:px-8 sm:py-16">
             {!vorgang ? (
-              <div className="max-w-[60ch]">
-                <TriangleAlert className="size-8 text-muted-foreground" aria-hidden="true" />
+              <div className="mx-auto max-w-[52ch] text-center">
+                <TriangleAlert className="mx-auto size-8 text-muted-foreground" aria-hidden="true" />
                 <h1 className="mt-6 text-[clamp(1.75rem,4vw,3rem)] font-semibold leading-[1.1] tracking-[-0.03em] text-foreground">
                   Dieser Link ist nicht{" "}
                   <span className="ml-[0.04em] font-serif font-semibold italic text-brand-navy">
@@ -61,34 +56,29 @@ export default async function UploadSeite({
                 </Link>
               </div>
             ) : (
-              <div className="grid gap-y-12 lg:grid-cols-[minmax(0,1fr)_minmax(0,24rem)] lg:gap-x-20">
-                <div>
-                  <h1 className="max-w-[20ch] text-[clamp(1.75rem,4vw,3rem)] font-semibold leading-[1.1] tracking-[-0.03em] text-foreground">
+              <div className="mx-auto max-w-[42rem]">
+                <div className="text-center">
+                  <h1 className="text-[clamp(1.75rem,4vw,3rem)] font-semibold leading-[1.1] tracking-[-0.03em] text-foreground">
                     Ihre Unterlagen{" "}
                     <span className="ml-[0.04em] font-serif font-semibold italic text-brand-navy">
                       hochladen
                     </span>
                   </h1>
-                  <p className="mt-6 max-w-[58ch] text-base leading-relaxed text-muted-foreground">
+                  <p className="mx-auto mt-6 max-w-[52ch] text-base leading-relaxed text-muted-foreground">
                     Die Übertragung ist verschlüsselt, die Dateien liegen auf
                     Servern in der EU und sind für niemanden außer mir
                     zugänglich. Die Bearbeitungszeit beginnt, sobald alles
                     vollständig vorliegt.
                   </p>
-
-                  <div className="mt-10">
-                    <UploadFormular
-                      sessionId={vorgang.sessionId}
-                      hatBereitsDateien={dateien.length > 0}
-                    />
-                  </div>
                 </div>
 
-                <aside className="rounded-2xl border border-border p-6 lg:sticky lg:top-8 lg:self-start">
+                {/* Steht vor dem Upload, damit klar ist, was gebraucht wird,
+                    bevor jemand Dateien auswählt. */}
+                <div className="mt-10 rounded-2xl border border-border p-6">
                   <h2 className="text-base font-semibold text-foreground">
                     Was ich brauche
                   </h2>
-                  <ul className="mt-4 flex flex-col gap-3">
+                  <ul className="mt-4 grid gap-3 sm:grid-cols-2">
                     {[
                       "Das Gutachten der Versicherung als PDF",
                       "Eine kurze Schilderung des Schadens in wenigen Sätzen",
@@ -101,31 +91,35 @@ export default async function UploadSeite({
                       </li>
                     ))}
                   </ul>
+                </div>
 
-                  {dateien.length > 0 ? (
-                    <div className="mt-6 border-t border-border pt-6">
-                      <h2 className="text-base font-semibold text-foreground">
-                        Bereits übermittelt
-                      </h2>
-                      <ul className="mt-4 flex flex-col gap-2">
-                        {dateien.map((datei) => (
-                          <li key={datei.name} className="text-sm text-muted-foreground">
-                            <span className="block truncate text-foreground">
-                              {datei.name}
-                            </span>
+                <div className="mt-8">
+                  <UploadFormular
+                    sessionId={vorgang.sessionId}
+                    hatBereitsDateien={dateien.length > 0}
+                  />
+                </div>
+
+                {dateien.length > 0 ? (
+                  <div className="mt-10 border-t border-border pt-8">
+                    <h2 className="text-base font-semibold text-foreground">
+                      Bereits übermittelt
+                    </h2>
+                    <ul className="mt-4 flex flex-col gap-2">
+                      {dateien.map((datei) => (
+                        <li key={datei.name} className="flex justify-between gap-4 text-sm">
+                          <span className="truncate text-foreground">{datei.name}</span>
+                          <span className="shrink-0 text-muted-foreground">
                             {megabyte(datei.groesseInByte)}
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                  ) : null}
-                </aside>
+                          </span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                ) : null}
               </div>
             )}
-          </div>
-        </section>
-      </main>
-      <SiteFooter />
-    </>
+      </div>
+    </section>
   );
 }

@@ -1,7 +1,7 @@
 import "server-only";
 
 import { getStripe } from "@/lib/stripe";
-import { GUTACHTEN_BUCKET, getSupabaseAdmin, ordnerFuer } from "@/lib/supabase";
+import { DOKUMENTE_BUCKET, getSupabaseAdmin, ordnerFuer } from "@/lib/supabase";
 
 export type Vorgang = {
   sessionId: string;
@@ -45,7 +45,7 @@ export async function ladeBezahltenVorgang(
  */
 export async function registriereVorgang(sessionId: string): Promise<void> {
   const { error } = await getSupabaseAdmin()
-    .from("vorgaenge")
+    .from("orders")
     .upsert({ session_id: sessionId }, { onConflict: "session_id" });
 
   if (error) {
@@ -57,7 +57,7 @@ export async function ladeDateien(
   sessionId: string,
 ): Promise<HochgeladeneDatei[]> {
   const { data, error } = await getSupabaseAdmin()
-    .storage.from(GUTACHTEN_BUCKET)
+    .storage.from(DOKUMENTE_BUCKET)
     .list(ordnerFuer(sessionId), { limit: 100, sortBy: { column: "created_at", order: "asc" } });
 
   if (error || !data) return [];

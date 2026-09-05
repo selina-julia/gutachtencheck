@@ -55,7 +55,7 @@ function ladeHoch(
         authorization: `Bearer ${SUPABASE_KEY}`,
       },
       metadata: {
-        bucketName: "gutachten",
+        bucketName: "documents",
         objectName: pfad,
         contentType: datei.type || "application/octet-stream",
       },
@@ -181,8 +181,8 @@ export function UploadFormular({
 
   if (fertig) {
     return (
-      <div className="rounded-2xl border border-border p-6">
-        <CircleCheck className="size-8 text-secondary" aria-hidden="true" />
+      <div className="rounded-2xl border border-border p-6 text-center">
+        <CircleCheck className="mx-auto size-8 text-secondary" aria-hidden="true" />
         <h2 className="mt-4 text-lg font-semibold text-foreground">
           Ihre Unterlagen sind angekommen
         </h2>
@@ -198,7 +198,7 @@ export function UploadFormular({
             setEintraege([]);
             setFertig(false);
           }}
-          className="mt-6 h-11 rounded-full px-6 text-sm font-semibold"
+          className="mx-auto mt-6 h-11 rounded-full px-6 text-sm font-semibold"
         >
           Weitere Datei hinzufügen
         </Button>
@@ -277,17 +277,19 @@ export function UploadFormular({
         </ul>
       ) : null}
 
-      <Button
-        type="button"
-        disabled={!bereit || laeuft}
-        onClick={starten}
-        className="mt-6 h-12 w-full rounded-full px-7 text-sm font-semibold sm:w-auto"
-      >
-        {laeuft ? "Wird hochgeladen …" : "Unterlagen übermitteln"}
-      </Button>
+      <div className="mt-6 flex justify-center">
+        <Button
+          type="button"
+          disabled={!bereit || laeuft}
+          onClick={starten}
+          className="h-12 w-full rounded-full px-7 text-sm font-semibold sm:w-auto"
+        >
+          {laeuft ? "Wird hochgeladen …" : "Unterlagen übermitteln"}
+        </Button>
+      </div>
 
       {hatBereitsDateien && eintraege.length === 0 ? (
-        <p className="mt-4 text-sm text-muted-foreground">
+        <p className="mt-4 text-center text-sm text-muted-foreground">
           Sie haben bereits Unterlagen übermittelt. Weitere Dateien können Sie
           jederzeit ergänzen.
         </p>

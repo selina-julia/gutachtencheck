@@ -1,30 +1,12 @@
 import type { Mail } from "@/lib/email";
+import { escape, mailRahmen, stil, textFuss } from "@/lib/mails/layout";
 import { produkte } from "@/lib/produkte";
-import { getSiteUrl } from "@/lib/site";
 
-function euro(cent: number): string {
+export function euro(cent: number): string {
   return (cent / 100).toLocaleString("de-AT", {
     style: "currency",
     currency: "EUR",
   });
-}
-
-/** Sehr schlichtes Markup: E-Mail-Clients unterstützen kaum modernes CSS. */
-function rahmen(inhalt: string): string {
-  return `<!doctype html>
-<html lang="de-AT">
-<body style="margin:0;padding:24px;background:#f4f6fb;font-family:Helvetica,Arial,sans-serif;color:#111827;">
-  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:560px;margin:0 auto;background:#ffffff;border-radius:12px;">
-    <tr><td style="padding:32px;">
-      <p style="margin:0 0 24px;font-size:18px;font-weight:bold;">Gutachtencheck<span style="color:#3860c2;">.</span></p>
-      ${inhalt}
-    </td></tr>
-  </table>
-  <p style="max-width:560px;margin:16px auto 0;font-size:12px;line-height:1.6;color:#6b7280;">
-    Diese Nachricht wurde automatisch versendet. Antworten auf diese Adresse werden nicht gelesen.
-  </p>
-</body>
-</html>`;
 }
 
 export function bestellbestaetigung(daten: {
@@ -35,52 +17,74 @@ export function bestellbestaetigung(daten: {
   const produkt = produkte["erst-einschaetzung"];
   const betrag = euro(daten.betragInCent);
 
-  const html = rahmen(`
-    <h1 style="margin:0 0 16px;font-size:22px;line-height:1.3;">Ihre Zahlung ist eingegangen</h1>
-    <p style="margin:0 0 16px;font-size:15px;line-height:1.6;">
-      Vielen Dank für Ihre Beauftragung der <strong>${produkt.name}</strong> über ${betrag} inkl. USt.
-    </p>
-    <h2 style="margin:24px 0 8px;font-size:16px;">Ihr nächster Schritt</h2>
-    <p style="margin:0 0 16px;font-size:15px;line-height:1.6;">
-      Laden Sie Ihre Unterlagen über den folgenden Link hoch. Die Übertragung ist
-      verschlüsselt, die Speicherung erfolgt DSGVO-konform auf Servern in der EU.
-    </p>
-    <p style="margin:0 0 24px;">
-      <a href="${daten.uploadUrl}" style="display:inline-block;padding:12px 24px;border-radius:999px;background:#3860c2;color:#ffffff;font-size:15px;font-weight:bold;text-decoration:none;">Unterlagen hochladen</a>
-    </p>
-    <h2 style="margin:24px 0 8px;font-size:16px;">Was ich brauche</h2>
-    <ul style="margin:0 0 16px;padding-left:20px;font-size:15px;line-height:1.6;">
-      <li>Das Gutachten der Versicherung als PDF</li>
-      <li>Eine kurze Schilderung des Schadens in wenigen Sätzen</li>
-    </ul>
-    <p style="margin:0;font-size:15px;line-height:1.6;">
-      Die Bearbeitungszeit beträgt ${produkt.lieferzeit} und beginnt, sobald Ihre
-      Unterlagen vollständig vorliegen. Die Rechnung erhalten Sie in einer
-      separaten E-Mail.
-    </p>
-  `);
+  const html = mailRahmen({
+    vorschau: `Zahlung über ${betrag} eingegangen. Jetzt Unterlagen hochladen.`,
+    inhalt: `
+      <h1 style="${stil.h1}">Ihre Zahlung ist eingegangen</h1>
+      <p style="${stil.p}">
+        Vielen Dank für Ihren Auftrag. Sie haben die <strong>${escape(produkt.name)}</strong>
+        über ${betrag} inklusive Umsatzsteuer beauftragt.
+      </p>
+
+      <h2 style="${stil.h2}">Ihr nächster Schritt</h2>
+      <p style="${stil.p}">
+        Laden Sie Ihre Unterlagen über den folgenden Link hoch. Die Übertragung
+        ist verschlüsselt, gespeichert wird auf Servern innerhalb der EU.
+      </p>
+      <p style="margin:0 0 24px;">
+        <a href="${escape(daten.uploadUrl)}" style="${stil.knopf}">Unterlagen hochladen</a>
+      </p>
+      <p style="${stil.leise}">
+        Falls der Knopf nicht funktioniert:<br>
+        <a href="${escape(daten.uploadUrl)}" style="color:#6b7280;word-break:break-all;">${escape(daten.uploadUrl)}</a>
+      </p>
+
+      <hr style="${stil.linie}">
+
+      <h2 style="margin-top:0;${stil.h2}">Was ich benötige</h2>
+      <ul style="margin:0 0 16px;padding-left:20px;font-size:15px;line-height:1.7;">
+        <li>Das Gutachten der Versicherung als PDF</li>
+        <li>Eine kurze Schilderung des Schadens in wenigen Sätzen</li>
+      </ul>
+      <p style="${stil.p}">
+        Die Bearbeitungszeit beträgt ${escape(produkt.lieferzeit)} und beginnt,
+        sobald Ihre Unterlagen vollständig vorliegen. Die Rechnung erhalten Sie
+        gesondert per E-Mail.
+      </p>
+      <p style="${stil.leise}">
+        Der Link ist persönlich und führt zu Ihren Unterlagen. Bitte geben Sie
+        ihn nicht weiter.
+      </p>
+    `,
+  });
 
   const text = [
     "Ihre Zahlung ist eingegangen",
     "",
-    `Vielen Dank für Ihre Beauftragung der ${produkt.name} über ${betrag} inkl. USt.`,
+    `Vielen Dank für Ihren Auftrag. Sie haben die ${produkt.name} über ${betrag}`,
+    "inklusive Umsatzsteuer beauftragt.",
     "",
-    "Ihr nächster Schritt: Laden Sie Ihre Unterlagen hier hoch (verschlüsselt, DSGVO-konform):",
+    "IHR NÄCHSTER SCHRITT",
+    "Laden Sie Ihre Unterlagen über den folgenden Link hoch. Die Übertragung ist",
+    "verschlüsselt, gespeichert wird auf Servern innerhalb der EU.",
+    "",
     daten.uploadUrl,
     "",
-    "Was ich brauche:",
+    "WAS ICH BENÖTIGE",
     "- Das Gutachten der Versicherung als PDF",
     "- Eine kurze Schilderung des Schadens in wenigen Sätzen",
     "",
-    `Die Bearbeitungszeit beträgt ${produkt.lieferzeit} und beginnt, sobald Ihre Unterlagen vollständig vorliegen.`,
-    "Die Rechnung erhalten Sie in einer separaten E-Mail.",
+    `Die Bearbeitungszeit beträgt ${produkt.lieferzeit} und beginnt, sobald Ihre`,
+    "Unterlagen vollständig vorliegen. Die Rechnung erhalten Sie gesondert.",
     "",
-    "Diese Nachricht wurde automatisch versendet.",
+    "Der Link ist persönlich und führt zu Ihren Unterlagen. Bitte geben Sie ihn",
+    "nicht weiter.",
+    ...textFuss(),
   ].join("\n");
 
   return {
     an: daten.an,
-    betreff: `${produkt.name}: Ihre Zahlung ist eingegangen`,
+    betreff: `Auftragsbestätigung: ${produkt.name}`,
     html,
     text,
   };
@@ -93,25 +97,40 @@ export function betreiberBenachrichtigung(daten: {
   sessionId: string;
 }): Mail {
   const produkt = produkte["erst-einschaetzung"];
-  const zeilen = [
-    `Produkt: ${produkt.name}`,
-    `Betrag: ${euro(daten.betragInCent)}`,
-    `Kunde: ${daten.kundenEmail ?? "keine Adresse übermittelt"}`,
-    `Stripe-Session: ${daten.sessionId}`,
+  const zeilen: [string, string][] = [
+    ["Leistung", produkt.name],
+    ["Betrag", euro(daten.betragInCent)],
+    ["Kundin oder Kunde", daten.kundenEmail ?? "keine Adresse übermittelt"],
+    ["Vorgang", daten.sessionId],
   ];
 
   return {
     an: daten.an,
     betreff: `Neue Bestellung: ${produkt.name}`,
-    html: rahmen(`
-      <h1 style="margin:0 0 16px;font-size:22px;">Neue Bestellung</h1>
-      <ul style="margin:0 0 16px;padding-left:20px;font-size:15px;line-height:1.6;">
-        ${zeilen.map((z) => `<li>${z}</li>`).join("")}
-      </ul>
-      <p style="margin:0;font-size:15px;line-height:1.6;">
-        <a href="${getSiteUrl()}">Zur Website</a>
-      </p>
-    `),
-    text: ["Neue Bestellung", "", ...zeilen].join("\n"),
+    html: mailRahmen({
+      vorschau: `${produkt.name}, ${euro(daten.betragInCent)}`,
+      inhalt: `
+        <h1 style="${stil.h1}">Neue Bestellung</h1>
+        <table role="presentation" cellpadding="0" cellspacing="0" style="width:100%;font-size:15px;line-height:1.7;">
+          ${zeilen
+            .map(
+              ([bezeichnung, wert]) =>
+                `<tr><td style="padding:2px 12px 2px 0;color:#6b7280;white-space:nowrap;">${escape(bezeichnung)}</td><td style="word-break:break-all;">${escape(wert)}</td></tr>`,
+            )
+            .join("")}
+        </table>
+        <p style="margin:20px 0 0;${stil.leise}">
+          Die Unterlagen folgen, sobald sie hochgeladen wurden.
+        </p>
+      `,
+    }),
+    text: [
+      "Neue Bestellung",
+      "",
+      ...zeilen.map(([b, w]) => `${b}: ${w}`),
+      "",
+      "Die Unterlagen folgen, sobald sie hochgeladen wurden.",
+      ...textFuss(),
+    ].join("\n"),
   };
 }

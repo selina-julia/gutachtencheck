@@ -2,7 +2,8 @@ import "server-only";
 
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 
-export const GUTACHTEN_BUCKET = "gutachten";
+/** Speicher-Bezeichner sind bewusst englisch, die Anwendung selbst deutsch. */
+export const DOKUMENTE_BUCKET = "documents";
 
 /**
  * Supabase-Client mit Service-Role-Schlüssel. Ausschließlich serverseitig

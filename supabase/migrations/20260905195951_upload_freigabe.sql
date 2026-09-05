@@ -1,51 +1,51 @@
--- Freigabe für den Datei-Upload nach bezahlter Bestellung.
+-- Grants the file upload after a paid order.
 --
--- Der Browser lädt direkt in den Bucket, weil Uploads dieser Größe nicht durch
--- eine Serverless-Funktion passen. Erlaubt wird das nicht über einen Token,
--- sondern über diese Tabelle: Die Storage-Regel lässt Schreibzugriffe nur in
--- Ordner zu, deren Name hier steht. Eingetragen wird erst nach bestätigter
--- Zahlung, serverseitig mit dem Service-Role-Schlüssel.
+-- The browser uploads straight into the bucket, because files of this size do
+-- not fit through a serverless function. Access is granted by a row rather than
+-- a token: the storage policy only admits writes into a folder whose name is
+-- listed here. Rows are written server-side with the service role, and only
+-- once Stripe has confirmed the payment.
+--
+-- Bezeichner in der Datenbank sind englisch, die Anwendung selbst ist deutsch.
 
-create schema if not exists intern;
+create schema if not exists internal;
 
-create table if not exists public.vorgaenge (
+create table if not exists public.orders (
   session_id text primary key,
-  angelegt_am timestamptz not null default now()
+  created_at timestamptz not null default now()
 );
 
--- RLS aktiv und bewusst ohne Regeln: Damit kommt ausschließlich die Rolle
--- service_role heran, also nur unser Server.
-alter table public.vorgaenge enable row level security;
-revoke all on table public.vorgaenge from anon, authenticated;
+-- RLS on and deliberately without policies: that leaves the service_role as the
+-- only way in, which means our server and nothing else.
+alter table public.orders enable row level security;
+revoke all on table public.orders from anon, authenticated;
 
--- Beantwortet nur ja/nein zu einer bereits bekannten Kennung. SECURITY DEFINER,
--- weil anon die Tabelle nicht lesen darf — ein Auflisten von Vorgängen ist
--- dadurch ausgeschlossen.
-create or replace function intern.vorgang_existiert(kennung text)
+-- Answers yes or no about an id the caller already holds. SECURITY DEFINER
+-- because anon must not read the table — enumerating orders stays impossible.
+create or replace function internal.order_exists(order_id text)
 returns boolean
 language sql
 security definer
 set search_path = public, pg_temp
 stable
 as $$
-  select exists (select 1 from public.vorgaenge where session_id = kennung);
+  select exists (select 1 from public.orders where session_id = order_id);
 $$;
 
-revoke all on function intern.vorgang_existiert(text) from public;
-grant usage on schema intern to anon;
-grant execute on function intern.vorgang_existiert(text) to anon;
+revoke all on function internal.order_exists(text) from public;
+grant usage on schema internal to anon;
+grant execute on function internal.order_exists(text) to anon;
 
--- Nur INSERT. Eine SELECT-Regel gab es zwischenzeitlich und sie war ein Leck:
--- Mit dem öffentlichen Schlüssel ließen sich Ordner auflisten und fremde
--- Gutachten herunterladen. Gelesen wird ausschließlich serverseitig über
--- signierte Links; der resumable Upload braucht die Leserechte nicht.
-drop policy if exists "lesen im eigenen vorgang" on storage.objects;
-drop policy if exists "fortsetzen im eigenen vorgang" on storage.objects;
-drop policy if exists "upload in bezahlten vorgang" on storage.objects;
+-- INSERT only. A SELECT policy existed in between and it leaked: with the
+-- publishable key, which ships in every browser, the bucket root could be
+-- listed, a valid session id read off it and another customer's documents
+-- downloaded in full. Reads happen server-side through signed links, and
+-- resumable uploads turn out not to need the grant.
+drop policy if exists "upload into paid order" on storage.objects;
 
-create policy "upload in bezahlten vorgang"
+create policy "upload into paid order"
   on storage.objects for insert to anon
   with check (
-    bucket_id = 'gutachten'
-    and intern.vorgang_existiert((storage.foldername(name))[1])
+    bucket_id = 'documents'
+    and internal.order_exists((storage.foldername(name))[1])
   );

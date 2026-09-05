@@ -1,23 +1,29 @@
 import type { Mail } from "@/lib/email";
-import type { HochgeladeneDatei } from "@/lib/vorgang";
+import { euro } from "@/lib/mails/bestellbestaetigung";
+import { escape, mailRahmen, stil, textFuss } from "@/lib/mails/layout";
 import { produkte } from "@/lib/produkte";
+import type { HochgeladeneDatei } from "@/lib/vorgang";
 
 function megabyte(byte: number): string {
   return `${(byte / 1024 / 1024).toLocaleString("de-AT", { maximumFractionDigits: 1 })} MB`;
 }
 
-function rahmen(inhalt: string): string {
-  return `<!doctype html>
-<html lang="de-AT">
-<body style="margin:0;padding:24px;background:#f4f6fb;font-family:Helvetica,Arial,sans-serif;color:#111827;">
-  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:560px;margin:0 auto;background:#ffffff;border-radius:12px;">
-    <tr><td style="padding:32px;">
-      <p style="margin:0 0 24px;font-size:18px;font-weight:bold;">Gutachtencheck<span style="color:#3860c2;">.</span></p>
-      ${inhalt}
-    </td></tr>
-  </table>
-</body>
-</html>`;
+function dateiTabelle(
+  dateien: (HochgeladeneDatei & { url?: string | null })[],
+): string {
+  return `<table role="presentation" cellpadding="0" cellspacing="0" style="width:100%;font-size:15px;line-height:1.7;border-collapse:collapse;">
+    ${dateien
+      .map((d) => {
+        const name = d.url
+          ? `<a href="${escape(d.url)}" style="color:#3860c2;">${escape(d.name)}</a>`
+          : escape(d.name);
+        return `<tr>
+          <td style="padding:8px 12px 8px 0;border-top:1px solid #e5e7eb;word-break:break-all;">${name}</td>
+          <td style="padding:8px 0;border-top:1px solid #e5e7eb;color:#6b7280;white-space:nowrap;text-align:right;">${megabyte(d.groesseInByte)}</td>
+        </tr>`;
+      })
+      .join("")}
+  </table>`;
 }
 
 export function unterlagenEingegangen(daten: {
@@ -25,33 +31,45 @@ export function unterlagenEingegangen(daten: {
   dateien: HochgeladeneDatei[];
 }): Mail {
   const produkt = produkte["erst-einschaetzung"];
-  const liste = daten.dateien
-    .map((d) => `<li>${d.name} (${megabyte(d.groesseInByte)})</li>`)
-    .join("");
+  const anzahl = daten.dateien.length;
 
   return {
     an: daten.an,
     betreff: "Ihre Unterlagen sind eingegangen",
-    html: rahmen(`
-      <h1 style="margin:0 0 16px;font-size:22px;line-height:1.3;">Ihre Unterlagen sind eingegangen</h1>
-      <p style="margin:0 0 16px;font-size:15px;line-height:1.6;">
-        Vielen Dank. Folgende Dateien liegen vor:
-      </p>
-      <ul style="margin:0 0 16px;padding-left:20px;font-size:15px;line-height:1.6;">${liste}</ul>
-      <p style="margin:0;font-size:15px;line-height:1.6;">
-        Die Bearbeitungszeit beträgt ${produkt.lieferzeit}. Ihre Kurzbewertung
-        erhalten Sie anschließend per E-Mail. Falls noch etwas fehlt, melde ich
-        mich vorher bei Ihnen.
-      </p>
-    `),
+    html: mailRahmen({
+      vorschau: `${anzahl} ${anzahl === 1 ? "Datei" : "Dateien"} eingegangen. Die Bearbeitung läuft.`,
+      inhalt: `
+        <h1 style="${stil.h1}">Ihre Unterlagen sind eingegangen</h1>
+        <p style="${stil.p}">
+          Vielen Dank. ${anzahl === 1 ? "Folgende Datei liegt" : "Folgende Dateien liegen"} vor:
+        </p>
+        ${dateiTabelle(daten.dateien)}
+        <p style="margin:24px 0 16px;font-size:15px;line-height:1.65;">
+          Die Bearbeitungszeit beträgt ${escape(produkt.lieferzeit)} und läuft
+          ab jetzt. Ihre Kurzbewertung erhalten Sie anschließend per E-Mail.
+          Sollte etwas fehlen, melde ich mich vorher bei Ihnen.
+        </p>
+        <p style="${stil.leise}">
+          Ihre Unterlagen werden ausschließlich zur Erfüllung dieses Auftrags
+          verarbeitet, verschlüsselt auf Servern innerhalb der EU gespeichert und
+          nach 24 Monaten automatisch gelöscht.
+        </p>
+      `,
+    }),
     text: [
       "Ihre Unterlagen sind eingegangen",
       "",
-      "Vielen Dank. Folgende Dateien liegen vor:",
+      `Vielen Dank. ${anzahl === 1 ? "Folgende Datei liegt" : "Folgende Dateien liegen"} vor:`,
       ...daten.dateien.map((d) => `- ${d.name} (${megabyte(d.groesseInByte)})`),
       "",
-      `Die Bearbeitungszeit beträgt ${produkt.lieferzeit}. Ihre Kurzbewertung erhalten Sie anschließend per E-Mail.`,
-      "Falls noch etwas fehlt, melde ich mich vorher bei Ihnen.",
+      `Die Bearbeitungszeit beträgt ${produkt.lieferzeit} und läuft ab jetzt. Ihre`,
+      "Kurzbewertung erhalten Sie anschließend per E-Mail. Sollte etwas fehlen,",
+      "melde ich mich vorher bei Ihnen.",
+      "",
+      "Ihre Unterlagen werden ausschließlich zur Erfüllung dieses Auftrags",
+      "verarbeitet, verschlüsselt auf Servern innerhalb der EU gespeichert und",
+      "nach 24 Monaten automatisch gelöscht.",
+      ...textFuss(),
     ].join("\n"),
   };
 }
@@ -60,42 +78,54 @@ export function unterlagenFuerBetreiber(daten: {
   an: string;
   kundenEmail: string | null;
   sessionId: string;
+  betragInCent?: number;
   dateien: (HochgeladeneDatei & { url: string | null })[];
 }): Mail {
-  const liste = daten.dateien
-    .map((d) =>
-      d.url
-        ? `<li><a href="${d.url}">${d.name}</a> (${megabyte(d.groesseInByte)})</li>`
-        : `<li>${d.name} (${megabyte(d.groesseInByte)}) — Link konnte nicht erzeugt werden</li>`,
-    )
-    .join("");
+  const kopf: [string, string][] = [
+    ["Kundin oder Kunde", daten.kundenEmail ?? "keine Adresse übermittelt"],
+    ["Vorgang", daten.sessionId],
+    ...(daten.betragInCent
+      ? ([["Betrag", euro(daten.betragInCent)]] as [string, string][])
+      : []),
+  ];
 
   return {
     an: daten.an,
     betreff: `Unterlagen eingegangen: ${daten.kundenEmail ?? daten.sessionId}`,
-    html: rahmen(`
-      <h1 style="margin:0 0 16px;font-size:22px;">Unterlagen eingegangen</h1>
-      <p style="margin:0 0 8px;font-size:15px;line-height:1.6;">
-        Kunde: ${daten.kundenEmail ?? "keine Adresse übermittelt"}<br>
-        Vorgang: ${daten.sessionId}
-      </p>
-      <ul style="margin:0 0 16px;padding-left:20px;font-size:15px;line-height:1.6;">${liste}</ul>
-      <p style="margin:0;font-size:13px;line-height:1.6;color:#6b7280;">
-        Die Downloadlinks laufen in sieben Tagen ab. Danach sind die Dateien nur
-        noch über das Supabase-Dashboard erreichbar.
-      </p>
-    `),
+    html: mailRahmen({
+      vorschau: `${daten.dateien.length} Datei(en) zum Vorgang ${daten.sessionId}`,
+      inhalt: `
+        <h1 style="${stil.h1}">Unterlagen eingegangen</h1>
+        <table role="presentation" cellpadding="0" cellspacing="0" style="width:100%;font-size:15px;line-height:1.7;margin-bottom:20px;">
+          ${kopf
+            .map(
+              ([b, w]) =>
+                `<tr><td style="padding:2px 12px 2px 0;color:#6b7280;white-space:nowrap;">${escape(b)}</td><td style="word-break:break-all;">${escape(w)}</td></tr>`,
+            )
+            .join("")}
+        </table>
+        ${dateiTabelle(daten.dateien)}
+        <p style="margin:24px 0 0;${stil.leise}">
+          Die Downloadlinks laufen nach sieben Tagen ab. Sie gewähren ohne
+          weitere Anmeldung Zugriff auf personenbezogene Daten — bitte nicht
+          weiterleiten. Danach sind die Dateien über das Speicher-Dashboard
+          erreichbar.
+        </p>
+      `,
+    }),
     text: [
       "Unterlagen eingegangen",
       "",
-      `Kunde: ${daten.kundenEmail ?? "keine Adresse übermittelt"}`,
-      `Vorgang: ${daten.sessionId}`,
+      ...kopf.map(([b, w]) => `${b}: ${w}`),
       "",
-      ...daten.dateien.map(
-        (d) => `- ${d.name} (${megabyte(d.groesseInByte)})\n  ${d.url ?? "Link konnte nicht erzeugt werden"}`,
-      ),
+      ...daten.dateien.flatMap((d) => [
+        `${d.name} (${megabyte(d.groesseInByte)})`,
+        `  ${d.url ?? "Link konnte nicht erzeugt werden"}`,
+      ]),
       "",
-      "Die Downloadlinks laufen in sieben Tagen ab.",
+      "Die Downloadlinks laufen nach sieben Tagen ab. Sie gewähren ohne weitere",
+      "Anmeldung Zugriff auf personenbezogene Daten — bitte nicht weiterleiten.",
+      ...textFuss(),
     ].join("\n"),
   };
 }

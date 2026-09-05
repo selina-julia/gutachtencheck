@@ -1,4 +1,4 @@
-import { GUTACHTEN_BUCKET, getSupabaseAdmin } from "@/lib/supabase";
+import { DOKUMENTE_BUCKET, getSupabaseAdmin } from "@/lib/supabase";
 
 /**
  * Löscht Unterlagen nach Ablauf der Aufbewahrungsfrist. Das Briefing nennt
@@ -24,7 +24,7 @@ export async function GET(request: Request): Promise<Response> {
   stichtag.setMonth(stichtag.getMonth() - AUFBEWAHRUNG_MONATE);
 
   const supabase = getSupabaseAdmin();
-  const speicher = supabase.storage.from(GUTACHTEN_BUCKET);
+  const speicher = supabase.storage.from(DOKUMENTE_BUCKET);
 
   const { data: ordner, error: ordnerFehler } = await speicher.list("", {
     limit: 1000,
