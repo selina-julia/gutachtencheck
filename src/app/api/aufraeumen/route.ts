@@ -1,8 +1,8 @@
 import { DOKUMENTE_BUCKET, getSupabaseAdmin } from "@/lib/supabase";
 
 /**
- * Löscht Unterlagen nach Ablauf der Aufbewahrungsfrist. Das Briefing nennt
- * 24 Monate; als Stichtag dient das Upload-Datum. Der tatsächliche Abschluss
+ * Löscht Unterlagen und Vorgangsdaten nach Ablauf der Aufbewahrungsfrist. Das
+ * Briefing nennt 24 Monate; als Stichtag dient das Upload- bzw. Anlagedatum. Der tatsächliche Abschluss
  * liegt danach, die Frist greift damit eher früher als später — bei
  * Schadens- und Vertragsdaten die richtige Richtung.
  *
@@ -53,28 +53,51 @@ export async function GET(request: Request): Promise<Response> {
     }
   }
 
-  if (zuLoeschen.length === 0) {
-    return Response.json({ geprueft: ordner?.length ?? 0, geloescht: 0 });
+  if (zuLoeschen.length > 0) {
+    const { error: loeschFehler } = await speicher.remove(zuLoeschen);
+    if (loeschFehler) {
+      return new Response(`Löschen fehlgeschlagen: ${loeschFehler.message}`, {
+        status: 502,
+      });
+    }
   }
 
-  const { error: loeschFehler } = await speicher.remove(zuLoeschen);
-  if (loeschFehler) {
-    return new Response(`Löschen fehlgeschlagen: ${loeschFehler.message}`, {
-      status: 502,
+  // Die Vorgangszeile enthält die Schilderung des Schadens und fällt unter
+  // dieselbe Frist wie die Unterlagen. Ohne diesen Schritt bliebe sie liegen.
+  const { data: geloeschteVorgaenge, error: vorgangFehler } = await supabase
+    .from("orders")
+    .delete()
+    .lt("created_at", stichtag.toISOString())
+    .select("session_id");
+
+  if (vorgangFehler) {
+    return new Response(
+      `Vorgänge konnten nicht gelöscht werden: ${vorgangFehler.message}`,
+      { status: 502 },
+    );
+  }
+
+  if (zuLoeschen.length === 0 && (geloeschteVorgaenge?.length ?? 0) === 0) {
+    return Response.json({
+      geprueft: ordner?.length ?? 0,
+      geloescht: 0,
+      vorgaengeGeloescht: 0,
     });
   }
 
   // Nachvollziehbarkeit: Die Datenschutzerklärung nennt die Frist, dieses
   // Protokoll belegt ihre Einhaltung.
-  console.info("[aufraeumen] Unterlagen nach Ablauf der Frist gelöscht", {
+  console.info("[aufraeumen] Nach Ablauf der Frist gelöscht", {
     stichtag: stichtag.toISOString(),
-    anzahl: zuLoeschen.length,
+    dateien: zuLoeschen.length,
     pfade: zuLoeschen,
+    vorgaenge: geloeschteVorgaenge?.map((v) => v.session_id) ?? [],
   });
 
   return Response.json({
     geprueft: ordner?.length ?? 0,
     geloescht: zuLoeschen.length,
+    vorgaengeGeloescht: geloeschteVorgaenge?.length ?? 0,
     stichtag: stichtag.toISOString(),
   });
 }

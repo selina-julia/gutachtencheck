@@ -4,8 +4,8 @@
 -- not a document, the expert reads it in the notification mail instead of
 -- downloading a .txt, and only here can it be queried later.
 --
--- Note that the cleanup job currently deletes stored files after 24 months but
--- leaves this row untouched. That still needs doing.
+-- The cleanup job clears order rows past the same 24 months it applies to the
+-- stored files, so this column falls under the retention period too.
 
 alter table public.orders
   add column if not exists damage_description text;
