@@ -22,9 +22,9 @@ export function Hero() {
           </h1>
 
           <p className="mt-6 max-w-[54ch] text-base leading-relaxed text-muted-foreground sm:mt-8 sm:text-lg">
-            Positionen, Zeitwerte, Abzüge – und keine Möglichkeit zu
-            beurteilen, ob das stimmt. Ich prüfe Ihr Versicherungsgutachten
-            unabhängig und sage Ihnen in drei Werktagen, woran Sie sind.
+            Positionen, Zeitwerte, Abzüge – und keine Möglichkeit zu beurteilen,
+            ob das stimmt. Ich prüfe Ihr Versicherungsgutachten unabhängig und
+            sage Ihnen in drei Werktagen, woran Sie sind.
           </p>
 
           <BestellDialog>
@@ -41,8 +41,9 @@ export function Hero() {
         </div>
 
         <div className="relative lg:col-start-1 lg:row-start-1 lg:pt-3">
-          <p className="relative max-w-[15rem] text-sm leading-relaxed text-muted-foreground">
-            Allgemein beeideter und gerichtlich zertifizierter Sachverständiger
+          <p className="relative lg:max-w-[15rem] text-sm leading-relaxed text-muted-foreground">
+            Geprüft von Christian Bäunard, allgemein beeideter und gerichtlich
+            zertifizierter Sachverständiger
             {"\u00A0"}· seit 2009{"\u00A0"}· über 6.000 Versicherungsgutachten
           </p>
         </div>

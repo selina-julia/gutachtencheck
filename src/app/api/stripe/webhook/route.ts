@@ -1,6 +1,13 @@
 import type Stripe from "stripe";
 
+import { sendeMail } from "@/lib/email";
+import {
+  bestellbestaetigung,
+  betreiberBenachrichtigung,
+} from "@/lib/mails/bestellbestaetigung";
+import { getSiteUrl } from "@/lib/site";
 import { getStripe } from "@/lib/stripe";
+import { registriereVorgang } from "@/lib/vorgang";
 
 /**
  * Stripe-Webhook. Die Signatur wird gegen den rohen Request-Body geprüft —
@@ -15,18 +22,80 @@ import { getStripe } from "@/lib/stripe";
  *   checkout.session.async_payment_failed
  *   checkout.session.expired
  */
-function bearbeitungFreigeben(session: Stripe.Checkout.Session): void {
-  // Ab hier gehört die Auslieferung hin: Rechnung erzeugen, Upload-Link
-  // versenden, Vorgang anlegen. Solange es dafür weder Datenbank noch
-  // Mailversand gibt, wird der Eingang nur protokolliert.
-  //
-  // Wenn das gebaut wird: Stripe stellt ein Event mehrfach zu. Die Auslieferung
-  // muss also idempotent sein, etwa über die bereits gespeicherte session.id.
-  console.info("[stripe] Zahlung bestätigt, Bearbeitung kann beginnen", {
+/**
+ * Prüft über den PaymentIntent, ob für diesen Vorgang schon eine Bestätigung
+ * rausging. Stripe stellt Events mehrfach zu, und ohne Datenbank ist Stripe
+ * selbst der einzige verlässliche Speicher dafür.
+ */
+async function bereitsBestaetigt(
+  stripe: Stripe,
+  paymentIntentId: string,
+): Promise<boolean> {
+  const pi = await stripe.paymentIntents.retrieve(paymentIntentId);
+  return pi.metadata?.bestaetigung_gesendet === "ja";
+}
+
+async function bearbeitungFreigeben(
+  session: Stripe.Checkout.Session,
+): Promise<void> {
+  const stripe = getStripe();
+  const email = session.customer_details?.email ?? null;
+
+  // Schaltet den Upload für diesen Ordner frei.
+  await registriereVorgang(session.id);
+  const paymentIntentId =
+    typeof session.payment_intent === "string"
+      ? session.payment_intent
+      : (session.payment_intent?.id ?? null);
+
+  if (paymentIntentId && (await bereitsBestaetigt(stripe, paymentIntentId))) {
+    console.info("[stripe] Bestätigung lag bereits vor, übersprungen", {
+      sessionId: session.id,
+    });
+    return;
+  }
+
+  if (email) {
+    await sendeMail(
+      bestellbestaetigung({
+        an: email,
+        betragInCent: session.amount_total ?? 0,
+        uploadUrl: `${getSiteUrl()}/upload/${session.id}`,
+      }),
+    );
+  } else {
+    console.warn("[stripe] Keine Kundenadresse, keine Bestätigung versendet", {
+      sessionId: session.id,
+    });
+  }
+
+  const betreiber = process.env.BETREIBER_EMAIL;
+  if (betreiber) {
+    await sendeMail(
+      betreiberBenachrichtigung({
+        an: betreiber,
+        kundenEmail: email,
+        betragInCent: session.amount_total ?? 0,
+        sessionId: session.id,
+      }),
+    );
+  }
+
+  // Erst nach dem Versand markieren. Bricht die Markierung ab, verschickt ein
+  // Wiederholungsversuch die Mail ein zweites Mal — das ist das kleinere Übel
+  // gegenüber einer Bestellung, die gar keine Bestätigung bekommt.
+  if (paymentIntentId) {
+    await stripe.paymentIntents.update(paymentIntentId, {
+      metadata: {
+        bestaetigung_gesendet: "ja",
+        bestaetigt_am: new Date().toISOString(),
+      },
+    });
+  }
+
+  console.info("[stripe] Zahlung bestätigt, Bestätigung versendet", {
     sessionId: session.id,
-    betrag: session.amount_total,
-    email: session.customer_details?.email,
-    metadata: session.metadata,
+    email,
   });
 }
 
@@ -61,7 +130,7 @@ export async function POST(request: Request): Promise<Response> {
       // Briefing wird immer vor Bearbeitungsbeginn bezahlt — also erst
       // freigeben, wenn Stripe die Zahlung als bezahlt meldet.
       if (session.payment_status === "paid") {
-        bearbeitungFreigeben(session);
+        await bearbeitungFreigeben(session);
       } else {
         console.info("[stripe] Bestellung eingegangen, Zahlung noch offen", {
           sessionId: session.id,
@@ -72,7 +141,7 @@ export async function POST(request: Request): Promise<Response> {
     }
 
     case "checkout.session.async_payment_succeeded": {
-      bearbeitungFreigeben(event.data.object);
+      await bearbeitungFreigeben(event.data.object);
       break;
     }
 

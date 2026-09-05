@@ -50,7 +50,7 @@ export default async function ErfolgSeite({
                     </span>
                   </h1>
                   <p className="mt-6 text-base leading-relaxed text-muted-foreground">
-                    Ihre Rechnung geht
+                    Wir haben Ihnen soeben eine Bestätigung
                     {email ? (
                       <>
                         {" "}
@@ -58,11 +58,11 @@ export default async function ErfolgSeite({
                       </>
                     ) : (
                       " an die angegebene Adresse"
-                    )}
-                    . In derselben E-Mail finden Sie den Link, über den Sie Ihr
-                    Gutachten und die zugehörigen Unterlagen hochladen. Die
-                    Frist von drei Werktagen beginnt, sobald die Unterlagen
-                    vollständig vorliegen.
+                    )}{" "}
+                    geschickt. Darin finden Sie den Link, über den Sie Ihr
+                    Gutachten hochladen. Die Bearbeitungszeit von drei
+                    Werktagen beginnt, sobald Ihre Unterlagen vollständig
+                    vorliegen.
                   </p>
                 </>
               ) : (

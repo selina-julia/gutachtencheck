@@ -69,7 +69,11 @@ export function BestellDialog({
         </ResponsiveDialogHeader>
 
         <div className="-mx-1 min-h-0 flex-1 space-y-4 overflow-y-auto px-1">
-          <Card>
+          {/* Echte border statt des ring-1 der Card-Vorlage: Ein Ring ist ein
+            box-shadow außerhalb der Box und wird vom overflow des Dialogs
+            abgeschnitten. Die border gehört zur Box und entspricht zudem den
+            Karten auf der Startseite. */}
+        <Card className="border border-border ring-0">
           <CardContent>
             <p className="text-2xl font-semibold tracking-[-0.03em] text-foreground">
               {(produkt.betragInCent / 100).toLocaleString("de-AT", {
