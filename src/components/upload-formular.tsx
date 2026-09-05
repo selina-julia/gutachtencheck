@@ -1,7 +1,7 @@
 "use client";
 
 import { useRef, useState } from "react";
-import { ArrowLeft, CircleCheck, CircleX, Paperclip, Upload } from "lucide-react";
+import { ArrowLeft, CircleCheck, CircleX, FileText, Paperclip } from "lucide-react";
 import * as tus from "tus-js-client";
 
 import {
@@ -10,6 +10,7 @@ import {
 } from "@/app/actions/upload";
 import { Button } from "@/components/ui/button";
 import { Schrittanzeige } from "@/components/upload-schritte";
+import { cn } from "@/lib/utils";
 import { Label } from "@/components/ui/label";
 
 const MAX_BYTE = 50 * 1024 * 1024;
@@ -105,6 +106,27 @@ function ladeHoch(
   });
 }
 
+/**
+ * Dokumentenstapel als reines Markup, wie die Illustrationen der Ablauf-
+ * Section. Rein dekorativ – die Fläche erklärt sich über den Text darunter.
+ */
+function Stapelbild() {
+  return (
+    <div aria-hidden="true" className="relative w-40">
+      <div className="absolute inset-x-5 -top-2.5 h-10 rounded-lg border border-border bg-background/60" />
+      <div className="relative flex items-center gap-3 rounded-xl border border-border bg-background p-4 shadow-sm">
+        <span className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-brand-tint">
+          <FileText className="size-4 text-primary" />
+        </span>
+        <div className="min-w-0 flex-1">
+          <div className="h-2 w-full rounded-full bg-muted" />
+          <div className="mt-1.5 h-2 w-2/3 rounded-full bg-muted" />
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export function UploadFormular({
   sessionId,
   hatBereitsDateien,
@@ -118,6 +140,7 @@ export function UploadFormular({
   const [laeuft, setLaeuft] = useState(false);
   const [uebermittelt, setUebermittelt] = useState(false);
   const [fehler, setFehler] = useState<string | undefined>();
+  const [zieltUeber, setZieltUeber] = useState(false);
   const feldRef = useRef<HTMLInputElement>(null);
 
   function aktualisiere(index: number, teil: Partial<Eintrag>) {
@@ -223,10 +246,12 @@ export function UploadFormular({
   }
 
   return (
-    <div>
-      <Schrittanzeige aktiv={schritt} />
+    <div className="overflow-hidden rounded-2xl border border-border bg-background">
+      <div className="border-b border-border px-5 py-4 sm:px-6">
+        <Schrittanzeige aktiv={schritt} />
+      </div>
 
-      <div className="mt-10">
+      <div className="p-5 sm:p-6">
         {schritt === 0 ? (
           <>
             <input
@@ -241,69 +266,115 @@ export function UploadFormular({
               className="sr-only"
             />
 
-            <button
-              type="button"
-              onClick={() => feldRef.current?.click()}
-              className="flex w-full flex-col items-center gap-3 rounded-2xl border border-dashed border-border bg-brand-tint/40 px-6 py-12 text-center transition-colors hover:border-primary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
+            {/* Die Fläche nimmt Dateien per Zug entgegen und öffnet auf Klick
+                den Dateidialog. Beides ist nötig: Ohne onDrop landet eine
+                gezogene Datei im Browserfenster und der Vorgang ist weg. */}
+            <div
+              onDragOver={(ereignis) => {
+                ereignis.preventDefault();
+                setZieltUeber(true);
+              }}
+              onDragLeave={(ereignis) => {
+                ereignis.preventDefault();
+                setZieltUeber(false);
+              }}
+              onDrop={(ereignis) => {
+                ereignis.preventDefault();
+                setZieltUeber(false);
+                beiAuswahl(ereignis.dataTransfer.files);
+              }}
+              className={cn(
+                "flex min-h-[24rem] flex-col items-center justify-center rounded-2xl border border-dashed px-6 py-10 text-center transition-colors",
+                zieltUeber
+                  ? "border-primary bg-brand-tint"
+                  : "border-border bg-brand-tint/30",
+              )}
             >
-              <Upload className="size-6 text-primary" aria-hidden="true" />
-              <span className="text-base font-semibold text-foreground">
-                Dateien auswählen
-              </span>
-              <span className="max-w-[44ch] text-sm leading-relaxed text-muted-foreground">
-                Das Gutachten der Versicherung als PDF, dazu Fotos oder weitere
-                Unterlagen, sofern vorhanden.
-              </span>
-              <span className="max-w-[44ch] text-xs leading-relaxed text-muted-foreground/80">
-                PDF, JPG, PNG, HEIC und Office-Dateien, bis {megabyte(MAX_BYTE)} pro
-                Datei. Mehrere Dateien auf einmal sind möglich.
-              </span>
-            </button>
+              {eintraege.length === 0 ? (
+                <>
+                  <Stapelbild />
 
-            {eintraege.length > 0 ? (
-              <ul className="mt-6 flex flex-col gap-3">
-                {eintraege.map((eintrag, index) => (
-                  <li
-                    key={`${eintrag.datei.name}-${index}`}
-                    className="rounded-xl border border-border p-4 text-left"
+                  <p className="mt-8 text-sm text-foreground sm:text-base">
+                    Ziehen Sie Ihre Dateien in diesen Bereich
+                  </p>
+
+                  <div className="mt-5 flex w-full max-w-[22rem] items-center gap-3">
+                    <span className="h-px flex-1 border-t border-dashed border-border" />
+                    <span className="text-xs text-muted-foreground">oder</span>
+                    <span className="h-px flex-1 border-t border-dashed border-border" />
+                  </div>
+
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => feldRef.current?.click()}
+                    className="mt-5 h-11 rounded-full border-border bg-background px-6 text-sm font-semibold"
                   >
-                    <div className="flex items-start gap-3">
-                      {eintrag.zustand === "fertig" ? (
-                        <CircleCheck className="mt-0.5 size-4 shrink-0 text-secondary" aria-hidden="true" />
-                      ) : eintrag.zustand === "fehler" ? (
-                        <CircleX className="mt-0.5 size-4 shrink-0 text-destructive" aria-hidden="true" />
-                      ) : (
-                        <Paperclip className="mt-0.5 size-4 shrink-0 text-muted-foreground" aria-hidden="true" />
-                      )}
-                      <div className="min-w-0 flex-1">
-                        <p className="truncate text-sm text-foreground">
-                          {eintrag.datei.name}
-                        </p>
-                        <p className="mt-0.5 text-xs text-muted-foreground">
-                          {eintrag.meldung ?? megabyte(eintrag.datei.size)}
-                        </p>
-                      </div>
-                    </div>
+                    Dateien auswählen
+                  </Button>
 
-                    {eintrag.zustand === "laeuft" ? (
-                      <div
-                        role="progressbar"
-                        aria-valuenow={eintrag.fortschritt}
-                        aria-valuemin={0}
-                        aria-valuemax={100}
-                        aria-label={`Upload von ${eintrag.datei.name}`}
-                        className="mt-3 h-1.5 w-full overflow-hidden rounded-full bg-muted"
+                  <p className="mt-8 max-w-[46ch] text-xs leading-relaxed text-muted-foreground">
+                    Das Gutachten der Versicherung als PDF, dazu Fotos oder
+                    weitere Unterlagen. PDF, JPG, PNG, HEIC und Office-Dateien,
+                    bis {megabyte(MAX_BYTE)} pro Datei.
+                  </p>
+                </>
+              ) : (
+                <div className="w-full">
+                  <ul className="flex flex-col gap-3 text-left">
+                    {eintraege.map((eintrag, index) => (
+                      <li
+                        key={`${eintrag.datei.name}-${index}`}
+                        className="rounded-xl border border-border bg-background p-4"
                       >
-                        <div
-                          className="h-full bg-primary transition-[width] duration-200"
-                          style={{ width: `${eintrag.fortschritt}%` }}
-                        />
-                      </div>
-                    ) : null}
-                  </li>
-                ))}
-              </ul>
-            ) : null}
+                        <div className="flex items-start gap-3">
+                          {eintrag.zustand === "fertig" ? (
+                            <CircleCheck className="mt-0.5 size-4 shrink-0 text-secondary" aria-hidden="true" />
+                          ) : eintrag.zustand === "fehler" ? (
+                            <CircleX className="mt-0.5 size-4 shrink-0 text-destructive" aria-hidden="true" />
+                          ) : (
+                            <Paperclip className="mt-0.5 size-4 shrink-0 text-muted-foreground" aria-hidden="true" />
+                          )}
+                          <div className="min-w-0 flex-1">
+                            <p className="truncate text-sm text-foreground">
+                              {eintrag.datei.name}
+                            </p>
+                            <p className="mt-0.5 text-xs text-muted-foreground">
+                              {eintrag.meldung ?? megabyte(eintrag.datei.size)}
+                            </p>
+                          </div>
+                        </div>
+
+                        {eintrag.zustand === "laeuft" ? (
+                          <div
+                            role="progressbar"
+                            aria-valuenow={eintrag.fortschritt}
+                            aria-valuemin={0}
+                            aria-valuemax={100}
+                            aria-label={`Upload von ${eintrag.datei.name}`}
+                            className="mt-3 h-1.5 w-full overflow-hidden rounded-full bg-muted"
+                          >
+                            <div
+                              className="h-full bg-primary transition-[width] duration-200"
+                              style={{ width: `${eintrag.fortschritt}%` }}
+                            />
+                          </div>
+                        ) : null}
+                      </li>
+                    ))}
+                  </ul>
+
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => feldRef.current?.click()}
+                    className="mt-4 h-10 rounded-full border-border bg-background px-5 text-sm font-semibold"
+                  >
+                    Weitere Dateien hinzufügen
+                  </Button>
+                </div>
+              )}
+            </div>
 
             {hatBereitsDateien && eintraege.length === 0 ? (
               <p className="mt-4 text-center text-sm text-muted-foreground">
@@ -373,12 +444,15 @@ export function UploadFormular({
       </div>
 
       {fehler ? (
-        <p role="alert" className="mt-6 text-center text-sm font-medium text-destructive">
+        <p
+          role="alert"
+          className="px-5 pb-2 text-sm font-medium text-destructive sm:px-6"
+        >
           {fehler}
         </p>
       ) : null}
 
-      <div className="mt-8 flex flex-col-reverse items-center justify-between gap-3 sm:flex-row">
+      <div className="flex flex-col-reverse items-center justify-between gap-3 border-t border-border px-5 py-4 sm:flex-row sm:px-6">
         {schritt > 0 ? (
           <Button
             type="button"
