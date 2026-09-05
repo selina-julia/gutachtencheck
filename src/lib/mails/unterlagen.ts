@@ -79,6 +79,7 @@ export function unterlagenFuerBetreiber(daten: {
   kundenEmail: string | null;
   sessionId: string;
   betragInCent?: number;
+  beschreibung?: string;
   dateien: (HochgeladeneDatei & { url: string | null })[];
 }): Mail {
   const kopf: [string, string][] = [
@@ -105,6 +106,12 @@ export function unterlagenFuerBetreiber(daten: {
             .join("")}
         </table>
         ${dateiTabelle(daten.dateien)}
+        ${
+          daten.beschreibung
+            ? `<h2 style="${stil.h2}">Schilderung des Schadens</h2>
+               <p style="margin:0;font-size:15px;line-height:1.65;white-space:pre-wrap;">${escape(daten.beschreibung)}</p>`
+            : ""
+        }
         <p style="margin:24px 0 0;${stil.leise}">
           Die Downloadlinks laufen nach sieben Tagen ab. Sie gewähren ohne
           weitere Anmeldung Zugriff auf personenbezogene Daten — bitte nicht
@@ -122,6 +129,9 @@ export function unterlagenFuerBetreiber(daten: {
         `${d.name} (${megabyte(d.groesseInByte)})`,
         `  ${d.url ?? "Link konnte nicht erzeugt werden"}`,
       ]),
+      ...(daten.beschreibung
+        ? ["", "SCHILDERUNG DES SCHADENS", daten.beschreibung]
+        : []),
       "",
       "Die Downloadlinks laufen nach sieben Tagen ab. Sie gewähren ohne weitere",
       "Anmeldung Zugriff auf personenbezogene Daten — bitte nicht weiterleiten.",

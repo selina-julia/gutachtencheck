@@ -68,7 +68,7 @@ export function mailRahmen(optionen: {
       </table>
 
       <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:560px;">
-        <tr><td style="padding:20px 32px 0;font-family:Helvetica,Arial,sans-serif;font-size:12px;line-height:1.7;color:${FARBE_LEISE};">
+        <tr><td style="padding:20px 0 0;font-family:Helvetica,Arial,sans-serif;font-size:12px;line-height:1.7;color:${FARBE_LEISE};">
           ${anbieterZeilen().map((z) => `<div>${escape(z)}</div>`).join("")}
           <div style="margin-top:12px;">
             Diese Nachricht gehört zur Abwicklung Ihres Auftrags. Wir verarbeiten

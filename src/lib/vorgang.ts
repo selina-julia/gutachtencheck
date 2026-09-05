@@ -53,6 +53,21 @@ export async function registriereVorgang(sessionId: string): Promise<void> {
   }
 }
 
+/** Schilderung des Schadens am Vorgang ablegen. */
+export async function speichereBeschreibung(
+  sessionId: string,
+  beschreibung: string,
+): Promise<void> {
+  const { error } = await getSupabaseAdmin()
+    .from("orders")
+    .update({ damage_description: beschreibung })
+    .eq("session_id", sessionId);
+
+  if (error) {
+    throw new Error(`Schilderung konnte nicht gespeichert werden: ${error.message}`);
+  }
+}
+
 export async function ladeDateien(
   sessionId: string,
 ): Promise<HochgeladeneDatei[]> {

@@ -17,6 +17,7 @@ import {
   ladeBezahltenVorgang,
   ladeDateien,
   registriereVorgang,
+  speichereBeschreibung,
 } from "@/lib/vorgang";
 
 export type UploadZiel =
@@ -51,22 +52,27 @@ export async function erzeugeUploadZiel(
 }
 
 /**
- * Wird nach dem letzten Upload aufgerufen: bestätigt dem Kunden den Eingang und
- * schickt dem Sachverständigen die Downloadlinks.
+ * Schließt die Übermittlung ab: speichert die Schilderung des Schadens am
+ * Vorgang, bestätigt dem Kunden den Eingang und schickt dem Sachverständigen
+ * die Downloadlinks samt Schilderung.
  */
 export async function meldeUnterlagenEingegangen(
   sessionId: string,
+  beschreibung: string,
 ): Promise<{ ok: boolean }> {
   const vorgang = await ladeBezahltenVorgang(sessionId);
   if (!vorgang) return { ok: false };
+
+  const text = beschreibung.trim();
+  if (text.length > 0) {
+    await speichereBeschreibung(sessionId, text);
+  }
 
   const dateien = await ladeDateien(sessionId);
   if (dateien.length === 0) return { ok: false };
 
   if (vorgang.email) {
-    await sendeMail(
-      unterlagenEingegangen({ an: vorgang.email, dateien }),
-    );
+    await sendeMail(unterlagenEingegangen({ an: vorgang.email, dateien }));
   }
 
   const betreiber = process.env.BETREIBER_EMAIL;
@@ -88,6 +94,7 @@ export async function meldeUnterlagenEingegangen(
         an: betreiber,
         kundenEmail: vorgang.email,
         sessionId,
+        beschreibung: text,
         dateien: mitLinks,
       }),
     );
