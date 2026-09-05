@@ -77,8 +77,11 @@ function ResponsiveDialogContent({
   return (
     <DrawerContent
       className={cn(
-        "gap-4 overflow-hidden p-4 pt-0",
-        "data-[vaul-drawer-direction=bottom]:max-h-[85dvh]",
+        /* Scrollbar statt overflow-hidden: sonst ist der untere Teil des
+           Inhalts auf kleinen Geräten nicht erreichbar. Kein pb, das
+           übernimmt der Footer – sonst addieren sich beide Abstände. */
+        "gap-4 overflow-y-auto p-4 pt-0 pb-0",
+        "data-[vaul-drawer-direction=bottom]:max-h-[92dvh]",
         drawerClassName,
       )}
       {...props}
@@ -128,7 +131,8 @@ function ResponsiveDialogFooter({
   ) : (
     <DrawerFooter
       className={cn(
-        "-mx-4 shrink-0 border-t bg-background px-4 pt-4",
+        /* Klebt am unteren Rand, während der Inhalt darüber scrollt. */
+        "sticky bottom-0 -mx-4 shrink-0 border-t bg-background px-4 pt-4",
         "pb-[max(1rem,env(safe-area-inset-bottom))]",
         className,
       )}
