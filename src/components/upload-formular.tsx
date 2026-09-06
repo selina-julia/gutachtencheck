@@ -129,10 +129,11 @@ function Stapelbild() {
 
 export function UploadFormular({
   sessionId,
-  hatBereitsDateien,
+  bereitsDateien,
 }: {
   sessionId: string;
-  hatBereitsDateien: boolean;
+  /** Bereits früher übermittelte Dateien, aus der Datenbank geladen. */
+  bereitsDateien: { name: string; groesseInByte: number }[];
 }) {
   const [schritt, setSchritt] = useState(0);
   const [eintraege, setEintraege] = useState<Eintrag[]>([]);
@@ -231,7 +232,7 @@ export function UploadFormular({
 
   if (uebermittelt) {
     return (
-      <div className="rounded-2xl border border-border p-8 text-center">
+      <div className="flex h-full flex-col items-center justify-center rounded-2xl border border-border p-8 text-center">
         <CircleCheck className="mx-auto size-8 text-secondary" aria-hidden="true" />
         <h2 className="mt-4 text-lg font-semibold text-foreground">
           Ihre Unterlagen sind angekommen
@@ -246,14 +247,14 @@ export function UploadFormular({
   }
 
   return (
-    <div className="overflow-hidden rounded-2xl border border-border bg-background">
-      <div className="border-b border-border px-5 py-4 sm:px-6">
+    <div className="flex h-full flex-col overflow-hidden rounded-2xl border border-border bg-background">
+      <div className="shrink-0 border-b border-border px-5 py-4 sm:px-6">
         <Schrittanzeige aktiv={schritt} />
       </div>
 
-      <div className="p-5 sm:p-6">
+      <div className="min-h-0 flex-1 overflow-y-auto p-5 sm:p-6">
         {schritt === 0 ? (
-          <>
+          <div className="flex h-full flex-col">
             <input
               ref={feldRef}
               type="file"
@@ -284,7 +285,7 @@ export function UploadFormular({
                 beiAuswahl(ereignis.dataTransfer.files);
               }}
               className={cn(
-                "flex min-h-[24rem] flex-col items-center justify-center rounded-2xl border border-dashed px-6 py-10 text-center transition-colors",
+                "flex min-h-[18rem] flex-1 flex-col items-center justify-center rounded-2xl border border-dashed px-6 py-10 text-center transition-colors",
                 zieltUeber
                   ? "border-primary bg-brand-tint"
                   : "border-border bg-brand-tint/30",
@@ -376,13 +377,29 @@ export function UploadFormular({
               )}
             </div>
 
-            {hatBereitsDateien && eintraege.length === 0 ? (
-              <p className="mt-4 text-center text-sm text-muted-foreground">
-                Sie haben bereits Unterlagen übermittelt. Weitere Dateien können
-                Sie jederzeit ergänzen.
-              </p>
+            {bereitsDateien.length > 0 ? (
+              <div className="mt-5 shrink-0 rounded-xl border border-border p-4">
+                <p className="text-sm font-semibold text-foreground">
+                  Bereits übermittelt
+                </p>
+                <ul className="mt-2 flex flex-col gap-1">
+                  {bereitsDateien.map((datei) => (
+                    <li
+                      key={datei.name}
+                      className="flex justify-between gap-4 text-sm"
+                    >
+                      <span className="truncate text-muted-foreground">
+                        {datei.name}
+                      </span>
+                      <span className="shrink-0 text-muted-foreground">
+                        {megabyte(datei.groesseInByte)}
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
             ) : null}
-          </>
+          </div>
         ) : null}
 
         {schritt === 1 ? (

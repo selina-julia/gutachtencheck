@@ -41,8 +41,12 @@ async function bearbeitungFreigeben(
   const stripe = getStripe();
   const email = session.customer_details?.email ?? null;
 
-  // Schaltet den Upload für diesen Ordner frei.
-  await registriereVorgang(session.id);
+  // Schaltet den Upload für diesen Ordner frei und hält fest, wer bestellt
+  // hat — sonst bräuchte die Auftragsliste einen Stripe-Aufruf je Zeile.
+  await registriereVorgang(session.id, {
+    email,
+    betragInCent: session.amount_total,
+  });
   const paymentIntentId =
     typeof session.payment_intent === "string"
       ? session.payment_intent

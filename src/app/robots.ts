@@ -27,20 +27,24 @@ const kiCrawler = [
   "CCBot",
 ];
 
+const gesperrt = ["/pruefung/", "/upload/", "/admin/", "/auth/"];
+
 export default function robots(): MetadataRoute.Robots {
   return {
     rules: [
       {
         userAgent: "*",
         allow: "/",
-        /* Die Erfolgsseite trägt bereits noindex, hier kommt der Crawler gar
-           nicht erst hin – sie ist ohne Stripe-Session ohnehin inhaltsleer. */
-        disallow: "/pruefung/",
+        /* Erfolgs- und Upload-Seite tragen bereits noindex, hier kommt der
+           Crawler gar nicht erst hin – ohne Stripe-Session sind sie ohnehin
+           inhaltsleer. Die Verwaltung ist zusätzlich durch Anmeldung
+           geschützt, steht aber trotzdem hier: kein Grund, sie zu erwähnen. */
+        disallow: gesperrt,
       },
       ...kiCrawler.map((userAgent) => ({
         userAgent,
         allow: "/",
-        disallow: "/pruefung/",
+        disallow: gesperrt,
       })),
     ],
     sitemap: `${getSiteUrl()}/sitemap.xml`,

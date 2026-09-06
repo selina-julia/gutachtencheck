@@ -43,24 +43,39 @@ export async function ladeBezahltenVorgang(
  * Trägt den bezahlten Vorgang ein. Die Storage-Regel erlaubt Uploads nur in
  * Ordner, die hier stehen — ohne Eintrag lehnt der Speicher jeden Chunk ab.
  */
-export async function registriereVorgang(sessionId: string): Promise<void> {
+export async function registriereVorgang(
+  sessionId: string,
+  daten?: { email?: string | null; betragInCent?: number | null },
+): Promise<void> {
   const { error } = await getSupabaseAdmin()
     .from("orders")
-    .upsert({ session_id: sessionId }, { onConflict: "session_id" });
+    .upsert(
+      {
+        session_id: sessionId,
+        ...(daten?.email !== undefined ? { customer_email: daten.email } : {}),
+        ...(daten?.betragInCent !== undefined
+          ? { amount_total: daten.betragInCent }
+          : {}),
+      },
+      { onConflict: "session_id" },
+    );
 
   if (error) {
     throw new Error(`Vorgang konnte nicht registriert werden: ${error.message}`);
   }
 }
 
-/** Schilderung des Schadens am Vorgang ablegen. */
+/** Schilderung des Schadens am Vorgang ablegen und den Eingang festhalten. */
 export async function speichereBeschreibung(
   sessionId: string,
   beschreibung: string,
 ): Promise<void> {
   const { error } = await getSupabaseAdmin()
     .from("orders")
-    .update({ damage_description: beschreibung })
+    .update({
+      damage_description: beschreibung,
+      documents_submitted_at: new Date().toISOString(),
+    })
     .eq("session_id", sessionId);
 
   if (error) {

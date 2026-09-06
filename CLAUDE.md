@@ -1,27 +1,27 @@
 @AGENTS.md
 
-# Sprache im Projekt
+# Language
 
-**Code ist englisch, die Oberfläche ist deutsch.**
+**Code is English, the interface is German.**
 
-Englisch:
+English:
 
-- Dateinamen und Verzeichnisse (`upload-form.tsx`, nicht `upload-formular.tsx`)
-- Funktions-, Variablen- und Typnamen (`registerOrder`, nicht `registriereVorgang`)
-- Datenbank und Speicher: Tabellen, Spalten, Schemas, Funktionen, Policies, Buckets
-- Commit-Nachrichten
+- File and directory names (`upload-form.tsx`, not `upload-formular.tsx`)
+- Function, variable and type names (`registerOrder`, not `registriereVorgang`)
+- Database and storage: tables, columns, schemas, functions, policies, buckets
+- Code comments
+- Commit messages
 
-Deutsch:
+German:
 
-- Alles, was Nutzerinnen und Nutzer lesen: Texte auf der Seite, E-Mails, Fehlermeldungen
-- Kommentare im Code
+- Everything a customer reads: page copy, emails, error messages
 
-Die Grenze verläuft am Bildschirmrand: Was jemand sieht, ist deutsch; was
-Entwicklerinnen und Entwickler bearbeiten, ist englisch.
+The line runs at the edge of the screen: what someone sees is German, what
+developers work on is English.
 
-## Bestand
+## Existing code
 
-Ein Teil des Codes ist noch deutsch benannt — `vorgang.ts`, `upload-formular.tsx`,
-`meldeUnterlagenEingegangen` und andere. Das ist Altbestand aus der Anfangszeit
-des Projekts. Neuer Code wird englisch benannt; Bestehendes wird umbenannt, wenn
-es ohnehin angefasst wird, nicht in einem eigenen Durchgang.
+Parts of the tree are still named in German — `vorgang.ts`,
+`upload-formular.tsx`, `meldeUnterlagenEingegangen` and others. That is legacy
+from the start of the project. New code is named in English; existing names are
+changed when the code is touched anyway, not in a pass of their own.
